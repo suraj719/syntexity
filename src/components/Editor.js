@@ -119,8 +119,6 @@ import "codemirror/addon/dialog/dialog.css";
 const Editor = ({ socketRef, roomId, onCodeChange, isLocked  }) => {
   const editorRef = useRef(null);
   const [message, setMessage] = useState('');
-  const [chatMessages, setChatMessages] = useState([]);
-  const [showChat, setShowChat] = useState(false);
   const lang = useRecoilValue(language);
   const editorTheme = useRecoilValue(cmtheme);
   
@@ -157,20 +155,8 @@ const Editor = ({ socketRef, roomId, onCodeChange, isLocked  }) => {
     }
   
     init();
-  }, [lang, isLocked]); // Make sure isLocked is included in the dependency array
+  }, [lang, isLocked,onCodeChange, socketRef, roomId]); // Make sure isLocked is included in the dependency array
   
-
-  useEffect(() => {
-    if (socketRef.current) {
-      socketRef.current.on(ACTIONS.RECEIVE_MESSAGE, ({ username, message }) => {
-        setChatMessages((prevMessages) => [...prevMessages, { username, message }]);
-      });
-    }
-
-    return () => {
-      socketRef.current.off(ACTIONS.RECEIVE_MESSAGE);
-    };
-  }, [socketRef.current]);
 
   useEffect(() => {
     if (socketRef.current) {
@@ -185,18 +171,7 @@ const Editor = ({ socketRef, roomId, onCodeChange, isLocked  }) => {
       socketRef.current.off(ACTIONS.CODE_CHANGE);
     };
   }, [socketRef.current]);
-
-  const sendMessage = () => {
-    if (socketRef.current && message.trim() !== '') {
-      socketRef.current.emit(ACTIONS.SEND_MESSAGE, { roomId, message });
-      setMessage('');
-    }
-  };
-
-  const toggleChat = () => {
-    setShowChat(!showChat);
-  };
-
+  
   const handleFileUpload = (event) => {
     const file = event.target.files[0];
     const reader = new FileReader();
@@ -213,32 +188,7 @@ const Editor = ({ socketRef, roomId, onCodeChange, isLocked  }) => {
     <div>
       <input type="file" onChange={handleFileUpload} />
       <textarea id="realtimeEditor"></textarea>
-      <div className={`chat-popup ${showChat ? 'show' : ''}`}>
-        {/* Chat UI */}
-        <div className="chat-header">
-          <span className="close" onClick={toggleChat}>&times;</span>
-          Chat Area
-        </div>
-        <div className="chat-body">
-          {chatMessages.map(({ username, message }, index) => (
-            <div key={index}>
-              <strong>{username}:</strong> {message}
-            </div>
-          ))}
-        </div>
-        <div className="chat-input">
-          <input
-            type="text"
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            placeholder="Type your message..."
-          />
-          <button onClick={sendMessage}>Send</button>
-        </div>
-      </div>
-      <div className="chat-toggle" onClick={toggleChat}>
-        {showChat ? 'Hide Chat' : 'Show Chat'}
-      </div>
+      <ChatArea socketRef={socketRef} roomId={roomId} />
     </div>
   );
 };

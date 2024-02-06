@@ -1,3 +1,4 @@
+// server.js
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
@@ -43,16 +44,14 @@ io.on('connection', (socket) => {
             });
         });
     });
+
     socket.on(ACTIONS.SEND_MESSAGE, ({ roomId, message }) => {
-        console.log("Message is changing")
         const senderUsername = userSocketMap[socket.id];
-        socket.in(roomId).emit(ACTIONS.RECEIVE_MESSAGE, {
-          username:senderUsername,
-          message,
+        io.in(roomId).emit(ACTIONS.RECEIVE_MESSAGE, {
+            username: senderUsername,
+            message,
         });
-      });
-      
-    
+    });
 
     socket.on(ACTIONS.CODE_CHANGE, ({ roomId, code }) => {
         socket.in(roomId).emit(ACTIONS.CODE_CHANGE, { code });

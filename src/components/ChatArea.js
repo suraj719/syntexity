@@ -1,37 +1,31 @@
-// File: src/components/ChatArea.js
+// chatarea.js
 import React, { useEffect, useState } from 'react';
 import { useRecoilValue } from 'recoil';
-import { initSocket } from '../socket';
 import ACTIONS from '../Actions';
-import './ChatArea.css'; // Create a new CSS file for styling
+import './ChatArea.css';
 
-const ChatArea = ({ roomId }) => {
-  const [socket, setSocket] = useState(null);
+const ChatArea = ({ socketRef, roomId }) => {
   const [message, setMessage] = useState('');
   const [chatMessages, setChatMessages] = useState([]);
   const [showChat, setShowChat] = useState(false);
-  const username = 'User'; // You can get the username from the user, for now, it's hardcoded
 
   useEffect(() => {
-    const init = async () => {
-      // Initialize the socket connection
-      const newSocket = await initSocket();
-      console.log('Socket connected with the id:', newSocket.id);
-      setSocket(newSocket);
-
-      newSocket.on(ACTIONS.RECEIVE_MESSAGE, ({ username, message }) => {
-        console.log("The username is:"+username+"Message is"+message)
+    if (socketRef.current) {
+      socketRef.current.on(ACTIONS.RECEIVE_MESSAGE, ({ username, message }) => {
         setChatMessages((prevMessages) => [...prevMessages, { username, message }]);
       });
-    };
+    }
 
-    init();
-  }, []);
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.off(ACTIONS.RECEIVE_MESSAGE);
+      }
+    };
+  }, [socketRef.current]);
 
   const sendMessage = () => {
-    if (socket && message.trim() !== '') {
-        console.log('Sending message:', message);
-      socket.emit(ACTIONS.SEND_MESSAGE, { roomId, message });
+    if (socketRef.current && message.trim() !== '') {
+      socketRef.current.emit(ACTIONS.SEND_MESSAGE, { roomId, message });
       setMessage('');
     }
   };
@@ -42,7 +36,7 @@ const ChatArea = ({ roomId }) => {
 
   return (
     <div className="chat-area-container">
-      <div className={`chat-popup ${showChat ? 'show' : 'hide'}`}>
+      <div className={`chat-popup ${showChat ? 'show' : ''}`}>
         <div className="chat-header">
           <span className="close" onClick={toggleChat}>&times;</span>
           Chat Area
@@ -65,7 +59,7 @@ const ChatArea = ({ roomId }) => {
         </div>
       </div>
       <div className="chat-toggle" onClick={toggleChat}>
-        {showChat ? 'Hid ' : 'Sh '}
+        {showChat ? 'Hide Chat' : 'Show Chat'}
       </div>
     </div>
   );
