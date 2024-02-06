@@ -20,6 +20,8 @@ const EditorPage = () => {
 
     const [clients, setClients] = useState([]);
 
+    const [isEditorLocked, setEditorLocked] = useState([]);
+
 
     const socketRef = useRef(null);
     const codeRef = useRef(null);
@@ -219,6 +221,12 @@ const EditorPage = () => {
                         <option value="zenburn">zenburn</option>
                     </select>
                 </label>
+                <button
+          className="btn lockBtn"
+          onClick={() => setEditorLocked(!isEditorLocked)}
+        >
+          {isEditorLocked ? "Unlock Editor" : "Lock Editor"}
+        </button>
 
                 <button className="btn copyBtn" onClick={copyRoomId}>
                     Copy ROOM ID
@@ -235,6 +243,7 @@ const EditorPage = () => {
                     onCodeChange={(code) => {
                         codeRef.current = code;
                     }}
+                    isLocked={isEditorLocked}
                 />
             </div>
         </div>
