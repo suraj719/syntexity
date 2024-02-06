@@ -143,8 +143,9 @@ const languageFileExtensions = {
 
 const Editor = ({ socketRef, roomId, onCodeChange, isLocked }) => {
   const editorRef = useRef(null);
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useState('');
   const [chatMessages, setChatMessages] = useState([]);
+  const [showChat, setShowChat] = useState(false);
   const lang = useRecoilValue(language);
   const editorTheme = useRecoilValue(cmtheme);
   const [code, setCode] = useState("");
@@ -183,15 +184,13 @@ const Editor = ({ socketRef, roomId, onCodeChange, isLocked }) => {
     }
 
     init();
-  }, [lang, isLocked]);
+  }, [lang, isLocked]); // Make sure isLocked is included in the dependency array
+  
 
   useEffect(() => {
     if (socketRef.current) {
       socketRef.current.on(ACTIONS.RECEIVE_MESSAGE, ({ username, message }) => {
-        setChatMessages((prevMessages) => [
-          ...prevMessages,
-          { username, message },
-        ]);
+        setChatMessages((prevMessages) => [...prevMessages, { username, message }]);
       });
     }
 
@@ -216,10 +215,14 @@ const Editor = ({ socketRef, roomId, onCodeChange, isLocked }) => {
   }, [socketRef.current]);
 
   const sendMessage = () => {
-    if (socketRef.current && message.trim() !== "") {
+    if (socketRef.current && message.trim() !== '') {
       socketRef.current.emit(ACTIONS.SEND_MESSAGE, { roomId, message });
-      setMessage("");
+      setMessage('');
     }
+  };
+
+  const toggleChat = () => {
+    setShowChat(!showChat);
   };
 
   const handleFileUpload = (event) => {
@@ -228,6 +231,13 @@ const Editor = ({ socketRef, roomId, onCodeChange, isLocked }) => {
 
     reader.onload = (e) => {
       const fileContent = e.target.result;
+      const code = editorRef.current.getValue();
+      // Emit CODE_CHANGE to update other users
+      socketRef.current.emit(ACTIONS.CODE_CHANGE, {
+        roomId,
+        code: fileContent,
+      });
+      // Update the local editor
       editorRef.current.setValue(fileContent);
       setCode(fileContent);
     };
@@ -254,8 +264,12 @@ const Editor = ({ socketRef, roomId, onCodeChange, isLocked }) => {
       <input type="file" onChange={handleFileUpload} />
       <button onClick={handleSaveCode}>Save Code</button>
       <textarea id="realtimeEditor"></textarea>
-      <div className="chat-popup">
-        <div className="chat-header">Chat Area</div>
+      <div className={`chat-popup ${showChat ? 'show' : ''}`}>
+        {/* Chat UI */}
+        <div className="chat-header">
+          <span className="close" onClick={toggleChat}>&times;</span>
+          Chat Area
+        </div>
         <div className="chat-body">
           {chatMessages.map(({ username, message }, index) => (
             <div key={index}>
@@ -272,6 +286,9 @@ const Editor = ({ socketRef, roomId, onCodeChange, isLocked }) => {
           />
           <button onClick={sendMessage}>Send</button>
         </div>
+      </div>
+      <div className="chat-toggle" onClick={toggleChat}>
+        {showChat ? 'Hide Chat' : 'Show Chat'}
       </div>
     </div>
   );

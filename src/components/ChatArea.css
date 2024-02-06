@@ -6,7 +6,7 @@
   .chat-popup {
     display: none;
     position: fixed;
-    bottom: 0;
+    bottom: 350px;
     background-color: #E3F2FD;
     right: 100px;
     border: 1px solid #E3F2FD;
@@ -28,6 +28,7 @@
   .chat-body {
     padding: 10px;
     overflow-y: auto;
+    height: 100px;
     max-height: 200px;
   }
   
