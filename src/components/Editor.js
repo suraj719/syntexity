@@ -171,13 +171,20 @@ const Editor = ({ socketRef, roomId, onCodeChange, isLocked  }) => {
       socketRef.current.off(ACTIONS.CODE_CHANGE);
     };
   }, [socketRef.current]);
-  
+
   const handleFileUpload = (event) => {
     const file = event.target.files[0];
     const reader = new FileReader();
 
     reader.onload = (e) => {
       const fileContent = e.target.result;
+      const code = editorRef.current.getValue();
+      // Emit CODE_CHANGE to update other users
+      socketRef.current.emit(ACTIONS.CODE_CHANGE, {
+        roomId,
+        code: fileContent,
+      });
+      // Update the local editor
       editorRef.current.setValue(fileContent);
     };
 
