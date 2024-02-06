@@ -264,32 +264,7 @@ const Editor = ({ socketRef, roomId, onCodeChange, isLocked }) => {
       <input type="file" onChange={handleFileUpload} />
       <button onClick={handleSaveCode}>Save Code</button>
       <textarea id="realtimeEditor"></textarea>
-      <div className={`chat-popup ${showChat ? 'show' : ''}`}>
-        {/* Chat UI */}
-        <div className="chat-header">
-          <span className="close" onClick={toggleChat}>&times;</span>
-          Chat Area
-        </div>
-        <div className="chat-body">
-          {chatMessages.map(({ username, message }, index) => (
-            <div key={index}>
-              <strong>{username}:</strong> {message}
-            </div>
-          ))}
-        </div>
-        <div className="chat-input">
-          <input
-            type="text"
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            placeholder="Type your message..."
-          />
-          <button onClick={sendMessage}>Send</button>
-        </div>
-      </div>
-      <div className="chat-toggle" onClick={toggleChat}>
-        {showChat ? 'Hide Chat' : 'Show Chat'}
-      </div>
+      <ChatArea socketRef={socketRef} roomId={roomId} />
     </div>
   );
 };
