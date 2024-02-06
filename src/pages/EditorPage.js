@@ -127,31 +127,38 @@ const EditorPage = () => {
                 </div>
 
                 <label>
-                    Select Language:
-                    <select value={lang} onChange={(e) => { setLang(e.target.value); window.location.reload(); }} className="seLang">
-                        <option value="clike">C / C++ / C#</option>
-                        <option value="css">CSS</option>
-                        <option value="dart">Dart</option>
-                        <option value="django">Django</option>
-                        <option value="dockerfile">Dockerfile</option>
-                        <option value="go">Go</option>
-                        <option value="htmlmixed">HTML-mixed</option>
-                        <option value="javascript">JavaScript</option>
-                        <option value="jsx">JSX</option>
-                        <option value="markdown">Markdown</option>
-                        <option value="php">PHP</option>
-                        <option value="python">Python</option>
-                        <option value="r">R</option>
-                        <option value="rust">Rust</option>
-                        <option value="ruby">Ruby</option>
-                        <option value="sass">Sass</option>
-                        <option value="shell">Shell</option>
-                        <option value="sql">SQL</option>
-                        <option value="swift">Swift</option>
-                        <option value="xml">XML</option>
-                        <option value="yaml">yaml</option>
-                    </select>
-                </label>
+  Select Language:
+  <select
+    value={lang}
+    onChange={(e) => {
+      setLang(e.target.value);
+      window.location.reload();
+    }}
+    className="seLang"
+  >
+    <option value="c">C</option>
+    <option value="cpp">CPP</option>
+    <option value="csharp">C#</option>
+    <option value="css">CSS</option>
+    <option value="dart">Dart</option>
+    <option value="go">Go</option>
+    <option value="json">JSON</option>
+    <option value="markdown">Markdown</option>
+    <option value="html">HTML</option>
+    <option value="javascript">JavaScript</option>
+    <option value="jsx">JSX</option>
+    <option value="php">PHP</option>
+    <option value="python">Python</option>
+    <option value="r">R</option>
+    <option value="rust">Rust</option>
+    <option value="ruby">Ruby</option>
+    <option value="sql">SQL</option>
+    <option value="swift">Swift</option>
+    <option value="xml">XML</option>
+    <option value="yaml">YAML</option>
+  </select>
+</label>
+
 
                 <label>
                     Select Theme:

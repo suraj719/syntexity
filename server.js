@@ -61,6 +61,12 @@ io.on('connection', (socket) => {
     socket.on(ACTIONS.SYNC_CODE, ({ socketId, code }) => {
         io.to(socketId).emit(ACTIONS.CODE_CHANGE, { code });
     });
+    // Handle UPLOAD_FILE event on the server side
+socket.on('UPLOAD_FILE', ({ roomId, fileContent }) => {
+    // Broadcast the file content to all participants in the room
+    io.to(roomId).emit('SYNC_CODE', { code: fileContent });
+  });
+  
 
     socket.on('disconnecting', () => {
         const rooms = [...socket.rooms];

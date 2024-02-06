@@ -1,8 +1,8 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { language, cmtheme } from '../../src/atoms';
-import { useRecoilValue } from 'recoil';
-import ACTIONS from '../Actions';
-import ChatArea from './ChatArea';
+import React, { useEffect, useRef, useState } from "react";
+import { language, cmtheme } from "../../src/atoms";
+import { useRecoilValue } from "recoil";
+import ACTIONS from "../Actions";
+import ChatArea from "./ChatArea";
 // CODE MIRROR
 import Codemirror from "codemirror";
 import "codemirror/lib/codemirror.css";
@@ -115,55 +115,83 @@ import "codemirror/addon/search/jump-to-line.js";
 import "codemirror/addon/dialog/dialog.js";
 import "codemirror/addon/dialog/dialog.css";
 
+// Import themes and modes as needed
 
-const Editor = ({ socketRef, roomId, onCodeChange, isLocked  }) => {
+const languageFileExtensions = {
+  python: "py",
+  cpp: "cpp",
+  c: "c",
+  csharp: "cs",
+  dart: "dart",
+  go: "go",
+  css: "css",
+  html: "html",
+  javascript: "js",
+  json: "json",
+  markdown: "md",
+  php: "php",
+  jsx: "jsx",
+  r: "r",
+  rust: "rs",
+  ruby: "rb",
+  sql: "sql",
+  xml: "xml",
+  swift: "swift",
+  yaml: "yaml",
+  // Add more languages and their corresponding file extensions as needed
+};
+
+const Editor = ({ socketRef, roomId, onCodeChange, isLocked }) => {
   const editorRef = useRef(null);
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState("");
   const [chatMessages, setChatMessages] = useState([]);
-  const [showChat, setShowChat] = useState(false);
   const lang = useRecoilValue(language);
   const editorTheme = useRecoilValue(cmtheme);
-  
+  const [code, setCode] = useState("");
+
   useEffect(() => {
     async function init() {
       if (editorRef.current) {
         editorRef.current.toTextArea();
       }
       editorRef.current = Codemirror.fromTextArea(
-        document.getElementById('realtimeEditor'),
+        document.getElementById("realtimeEditor"),
         {
           mode: { name: lang },
           theme: editorTheme,
           autoCloseTags: true,
           autoCloseBrackets: true,
           lineNumbers: true,
-          extraKeys: { 'Ctrl-Space': 'autocomplete' },
+          extraKeys: { "Ctrl-Space": "autocomplete" },
           autocomplete: true,
-          readOnly: isLocked ? 'nocursor' : false, // This line might be causing the issue
+          readOnly: isLocked ? "nocursor" : false,
         }
       );
-  
-      editorRef.current.on('change', (instance, changes) => {
+
+      editorRef.current.on("change", (instance, changes) => {
         const { origin } = changes;
-        const code = instance.getValue();
-        onCodeChange(code);
-        if (origin !== 'setValue') {
+        const newCode = instance.getValue();
+        setCode(newCode);
+        onCodeChange(newCode);
+        if (origin !== "setValue") {
           socketRef.current.emit(ACTIONS.CODE_CHANGE, {
             roomId,
-            code,
+            code: newCode,
           });
         }
       });
     }
-  
+
     init();
-  }, [lang, isLocked]); // Make sure isLocked is included in the dependency array
-  
+  }, [lang, isLocked]);
 
   useEffect(() => {
     if (socketRef.current) {
       socketRef.current.on(ACTIONS.RECEIVE_MESSAGE, ({ username, message }) => {
-        setChatMessages((prevMessages) => [...prevMessages, { username, message }]);
+        setChatMessages((prevMessages) => [
+          ...prevMessages,
+          { username, message },
+        ]);
       });
     }
 
@@ -177,6 +205,7 @@ const Editor = ({ socketRef, roomId, onCodeChange, isLocked  }) => {
       socketRef.current.on(ACTIONS.CODE_CHANGE, ({ code }) => {
         if (code !== null) {
           editorRef.current.setValue(code);
+          setCode(code);
         }
       });
     }
@@ -187,14 +216,10 @@ const Editor = ({ socketRef, roomId, onCodeChange, isLocked  }) => {
   }, [socketRef.current]);
 
   const sendMessage = () => {
-    if (socketRef.current && message.trim() !== '') {
+    if (socketRef.current && message.trim() !== "") {
       socketRef.current.emit(ACTIONS.SEND_MESSAGE, { roomId, message });
-      setMessage('');
+      setMessage("");
     }
-  };
-
-  const toggleChat = () => {
-    setShowChat(!showChat);
   };
 
   const handleFileUpload = (event) => {
@@ -204,21 +229,33 @@ const Editor = ({ socketRef, roomId, onCodeChange, isLocked  }) => {
     reader.onload = (e) => {
       const fileContent = e.target.result;
       editorRef.current.setValue(fileContent);
+      setCode(fileContent);
     };
 
     reader.readAsText(file);
   };
 
+  const handleSaveCode = () => {
+    const element = document.createElement("a");
+    const file = new Blob([code], { type: "text/plain" });
+  
+    const fileExtension = languageFileExtensions[lang] || "txt";
+  
+    const fileName = `code.${fileExtension}`;
+    element.href = URL.createObjectURL(file);
+    element.download = fileName;
+    document.body.appendChild(element);
+    element.click();
+  };
+  
+
   return (
     <div>
       <input type="file" onChange={handleFileUpload} />
+      <button onClick={handleSaveCode}>Save Code</button>
       <textarea id="realtimeEditor"></textarea>
-      <div className={`chat-popup ${showChat ? 'show' : ''}`}>
-        {/* Chat UI */}
-        <div className="chat-header">
-          <span className="close" onClick={toggleChat}>&times;</span>
-          Chat Area
-        </div>
+      <div className="chat-popup">
+        <div className="chat-header">Chat Area</div>
         <div className="chat-body">
           {chatMessages.map(({ username, message }, index) => (
             <div key={index}>
@@ -236,11 +273,10 @@ const Editor = ({ socketRef, roomId, onCodeChange, isLocked  }) => {
           <button onClick={sendMessage}>Send</button>
         </div>
       </div>
-      <div className="chat-toggle" onClick={toggleChat}>
-        {showChat ? 'Hide Chat' : 'Show Chat'}
-      </div>
     </div>
   );
 };
 
 export default Editor;
+
+
