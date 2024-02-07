@@ -37,7 +37,6 @@ const languageFileExtensions = {
 const Editor = ({ socketRef, roomId, onCodeChange, isLocked }) => {
   const editorRef = useRef(null);
   const [message, setMessage] = useState("");
-  const [chatMessages, setChatMessages] = useState([]);
   const [showChat, setShowChat] = useState(false);
   const lang = useRecoilValue(language);
   const editorTheme = useRecoilValue(cmtheme);
@@ -79,20 +78,6 @@ const Editor = ({ socketRef, roomId, onCodeChange, isLocked }) => {
     init();
   }, [lang, isLocked]); // Make sure isLocked is included in the dependency array
 
-  useEffect(() => {
-    if (socketRef.current) {
-      socketRef.current.on(ACTIONS.RECEIVE_MESSAGE, ({ username, message }) => {
-        setChatMessages((prevMessages) => [
-          ...prevMessages,
-          { username, message },
-        ]);
-      });
-    }
-
-    return () => {
-      socketRef.current.off(ACTIONS.RECEIVE_MESSAGE);
-    };
-  }, [socketRef.current]);
 
   useEffect(() => {
     if (socketRef.current) {
@@ -108,17 +93,6 @@ const Editor = ({ socketRef, roomId, onCodeChange, isLocked }) => {
       socketRef.current.off(ACTIONS.CODE_CHANGE);
     };
   }, [socketRef.current]);
-
-  const sendMessage = () => {
-    if (socketRef.current && message.trim() !== "") {
-      socketRef.current.emit(ACTIONS.SEND_MESSAGE, { roomId, message });
-      setMessage("");
-    }
-  };
-
-  const toggleChat = () => {
-    setShowChat(!showChat);
-  };
 
   const handleFileUpload = (event) => {
     const file = event.target.files[0];
