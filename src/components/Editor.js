@@ -36,8 +36,6 @@ const languageFileExtensions = {
 
 const Editor = ({ socketRef, roomId, onCodeChange, isLocked }) => {
   const editorRef = useRef(null);
-  const [message, setMessage] = useState("");
-  const [showChat, setShowChat] = useState(false);
   const lang = useRecoilValue(language);
   const editorTheme = useRecoilValue(cmtheme);
   const [code, setCode] = useState("");
