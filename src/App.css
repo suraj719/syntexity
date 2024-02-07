@@ -51,6 +51,7 @@ footer a {
 
 .btn {
     border: none;
+    margin-top: 20px;
     padding: 10px;
     border-radius: 5px;
     font-size: 16px;

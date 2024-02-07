@@ -8,7 +8,7 @@ import Codemirror from "codemirror";
 import "codemirror/lib/codemirror.css";
 
 // Import themes and modes as needed
-import "./EditorAddon"
+import "./EditorAddon";
 
 const languageFileExtensions = {
   python: "py",
@@ -36,7 +36,7 @@ const languageFileExtensions = {
 
 const Editor = ({ socketRef, roomId, onCodeChange, isLocked }) => {
   const editorRef = useRef(null);
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState("");
   const [chatMessages, setChatMessages] = useState([]);
   const [showChat, setShowChat] = useState(false);
   const lang = useRecoilValue(language);
@@ -78,12 +78,14 @@ const Editor = ({ socketRef, roomId, onCodeChange, isLocked }) => {
 
     init();
   }, [lang, isLocked]); // Make sure isLocked is included in the dependency array
-  
 
   useEffect(() => {
     if (socketRef.current) {
       socketRef.current.on(ACTIONS.RECEIVE_MESSAGE, ({ username, message }) => {
-        setChatMessages((prevMessages) => [...prevMessages, { username, message }]);
+        setChatMessages((prevMessages) => [
+          ...prevMessages,
+          { username, message },
+        ]);
       });
     }
 
@@ -108,9 +110,9 @@ const Editor = ({ socketRef, roomId, onCodeChange, isLocked }) => {
   }, [socketRef.current]);
 
   const sendMessage = () => {
-    if (socketRef.current && message.trim() !== '') {
+    if (socketRef.current && message.trim() !== "") {
       socketRef.current.emit(ACTIONS.SEND_MESSAGE, { roomId, message });
-      setMessage('');
+      setMessage("");
     }
   };
 
@@ -141,16 +143,15 @@ const Editor = ({ socketRef, roomId, onCodeChange, isLocked }) => {
   const handleSaveCode = () => {
     const element = document.createElement("a");
     const file = new Blob([code], { type: "text/plain" });
-  
+
     const fileExtension = languageFileExtensions[lang] || "txt";
-  
+
     const fileName = `code.${fileExtension}`;
     element.href = URL.createObjectURL(file);
     element.download = fileName;
     document.body.appendChild(element);
     element.click();
   };
-  
 
   return (
     <div>
@@ -163,5 +164,3 @@ const Editor = ({ socketRef, roomId, onCodeChange, isLocked }) => {
 };
 
 export default Editor;
-
-
