@@ -20,7 +20,7 @@ const EditorPage = () => {
 
     const [clients, setClients] = useState([]);
 
-    const [isEditorLocked, setEditorLocked] = useState([]);
+    const [isEditorLocked, setEditorLocked] = useState(false);
 
 
     const socketRef = useRef(null);
@@ -232,7 +232,7 @@ const EditorPage = () => {
           className="btn lockBtn"
           onClick={() => setEditorLocked(!isEditorLocked)}
         >
-          {isEditorLocked ? "Unlock Editor" : "Lock Editor"}
+          {isEditorLocked ? "Unlock Editor" : "lock Editor"}
         </button>
 
                 <button className="btn copyBtn" onClick={copyRoomId}>

@@ -60,6 +60,12 @@ io.on('connection', (socket) => {
     socket.on(ACTIONS.SYNC_CODE, ({ socketId, code }) => {
         io.to(socketId).emit(ACTIONS.CODE_CHANGE, { code });
     });
+
+    socket.on(ACTIONS.TOGGLE_EDITOR_LOCK, ({ roomId, editorLocked }) => {
+        // Emit the new TOGGLE_EDITOR_LOCK action to other users in the room
+        socket.to(roomId).emit(ACTIONS.TOGGLE_EDITOR_LOCK, { editorLocked });
+      });
+      
     // Handle UPLOAD_FILE event on the server side
 socket.on('UPLOAD_FILE', ({ roomId, fileContent }) => {
     // Broadcast the file content to all participants in the room

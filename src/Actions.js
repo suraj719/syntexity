@@ -7,6 +7,7 @@ const ACTIONS = {
     LEAVE: 'leave',
     SEND_MESSAGE: 'send-message',
     RECEIVE_MESSAGE: 'receive-message',
+    TOGGLE_EDITOR_LOCK: 'TOGGLE_EDITOR_LOCK',
 };
 
 module.exports = ACTIONS;
