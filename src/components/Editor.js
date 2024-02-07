@@ -74,8 +74,21 @@ const Editor = ({ socketRef, roomId, onCodeChange, isLocked }) => {
     }
 
     init();
-  }, [lang, isLocked]); // Make sure isLocked is included in the dependency array
-
+  }, [lang]); // Make sure isLocked is included in the dependency array
+  useEffect(() => {
+    if (socketRef.current && socketRef.current.connected) {
+      socketRef.current.emit(ACTIONS.TOGGLE_EDITOR_LOCK, {
+        roomId,
+        editorLocked: isLocked,
+      });
+      socketRef.current.on(ACTIONS.TOGGLE_EDITOR_LOCK, ({ roomId, editorLocked }) => {
+        editorRef.current.setOption('readOnly', editorLocked ? 'nocursor' : false);
+      });
+      // Update CodeMirror's readOnly state based on the received lock status
+     
+    }
+  }, [isLocked, socketRef.current]);
+  
 
   useEffect(() => {
     if (socketRef.current) {

@@ -28,6 +28,7 @@ const EditorPage = () => {
   const { roomId } = useParams();
   const reactNavigator = useNavigate();
 
+  
   useEffect(() => {
     const init = async () => {
       socketRef.current = await initSocket();
