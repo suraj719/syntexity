@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect } from "react";
 import toast from "react-hot-toast";
 import Client from "../components/Client";
 import Editor from "../components/Editor";
-import '../components/Client.css'
 import { language, cmtheme } from "../../src/atoms";
 import { useRecoilState } from "recoil";
 import ACTIONS from "../Actions";
@@ -121,7 +120,7 @@ const EditorPage = () => {
               setLang(e.target.value);
               window.location.reload();
             }}
-            className="seLang"
+            className="seLang text-black"
           >
             <option value="c">C</option>
             <option value="cpp">CPP</option>
@@ -154,7 +153,7 @@ const EditorPage = () => {
               setThem(e.target.value);
               window.location.reload();
             }}
-            className="seLang"
+            className="seLang text-black"
           >
             <option value="default">default</option>
             <option value="3024-day">3024-day</option>
