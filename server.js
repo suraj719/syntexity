@@ -1,6 +1,7 @@
 // server.js
 const express = require('express');
 const http = require('http');
+const mongoose = require('mongoose');
 const { Server } = require('socket.io');
 const cors = require('cors');
 const ACTIONS = require('./src/Actions');
@@ -15,6 +16,15 @@ const io = new Server(server, {
         credentials: true
     }
 });
+mongoose.connect(`mongodb+srv://syntexity:syntexity@cluster0.kqn8npq.mongodb.net`, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
+const ChatMessage = mongoose.model('ChatMessage', {
+    username: String,
+    message: String,
+  });
+
 
 const userSocketMap = {};
 
@@ -47,6 +57,8 @@ io.on('connection', (socket) => {
 
     socket.on(ACTIONS.SEND_MESSAGE, ({ roomId, message }) => {
         const senderUsername = userSocketMap[socket.id];
+        const chatMessage = new ChatMessage({ senderUsername, message });
+        chatMessage.save();
         io.in(roomId).emit(ACTIONS.RECEIVE_MESSAGE, {
             username: senderUsername,
             message,

@@ -9,6 +9,7 @@
     "codemirror": "^5.65.2",
     "express": "^4.17.3",
     "mongodb": "^6.3.0",
+    "mongoose": "^8.1.1",
     "react": "^18.0.0",
     "react-avatar": "^5.0.3",
     "react-dom": "^18.0.0",
@@ -19,7 +20,10 @@
     "socket.io": "^4.4.1",
     "socket.io-client": "^4.4.1",
     "uuid": "^8.3.2",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "y-codemirror": "^3.0.1",
+    "y-websocket": "^1.5.3",
+    "yjs": "^13.6.11"
   },
   "scripts": {
     "start": "react-scripts start",

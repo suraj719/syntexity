@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import toast from "react-hot-toast";
 import Client from "../components/Client";
 import Editor from "../components/Editor";
+import '../components/Client.css'
 import { language, cmtheme } from "../../src/atoms";
 import { useRecoilState } from "recoil";
 import ACTIONS from "../Actions";
@@ -105,10 +106,11 @@ const EditorPage = () => {
           </div>
           <h3>Connected</h3>
           <div className="clientsList">
-            {clients.map((client) => (
-              <Client key={client.socketId} username={client.username} />
-            ))}
-          </div>
+  {clients.map((client) => (
+    <Client key={client.socketId} username={client.username} />
+  ))}
+</div>
+
         </div>
 
         <label>
