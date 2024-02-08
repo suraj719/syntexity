@@ -9,7 +9,7 @@ export default function Register() {
     e.preventDefault();
     try {
       setIsLoading(true);
-      await fetch(`http://localhost:9630/api/signup`, {
+      await fetch(`http://localhost:5050/api/signup`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
