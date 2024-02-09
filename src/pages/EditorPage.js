@@ -13,6 +13,7 @@ import {
   Navigate,
   useParams,
 } from "react-router-dom";
+import * as d3 from "d3";
 import axios from "axios";
 
 const EditorPage = () => {
@@ -23,6 +24,9 @@ const EditorPage = () => {
 
   const [isEditorLocked, setEditorLocked] = useState(false);
 
+  const [userChanges, setUserChanges] = useState([]);
+  const [showBarChart, setShowBarChart] = useState(false);
+
   const socketRef = useRef(null);
   const codeRef = useRef(null);
   const location = useLocation();
@@ -31,6 +35,8 @@ const EditorPage = () => {
   const [output, setOutput] = useState("");
   const [code, setCode] = useState("");
   const [onlineUsersCount, setOnlineUsersCount] = useState(0);
+  const [showAnalysis, setShowAnalysis] = useState(false); // Define showAnalysis state
+  // const toggleAnalysis = () => setShowAnalysis(!showAnalysis); // Define toggleAnalysis function
   // console.log(codeRef.current)
   const handleOutput = async (e) => {
     e.preventDefault();
@@ -84,6 +90,12 @@ const EditorPage = () => {
         }
       );
 
+      // Listening for user changes
+      socketRef.current.on(ACTIONS.USER_CHANGES, (changesData) => {
+        console.log(changesData);
+        updateUserChanges(changesData);
+      });
+
       // Listening for disconnected
       socketRef.current.on(ACTIONS.DISCONNECTED, ({ socketId, username }) => {
         toast.success(`${username} left the room.`);
@@ -110,6 +122,91 @@ const EditorPage = () => {
       console.error(err);
     }
   }
+
+  const toggleAnalysis = () => {
+    setShowBarChart(!showBarChart);
+    // setShowBarChart(!showBarChart);
+    if (!showBarChart) {
+      console.log("graph created");
+      createBarChart();
+    } else {
+      console.log("new d3");
+      d3.select("#bar-chart-container").selectAll("*").remove(); // Remove existing chart
+    }
+    // createBarChart();
+  };
+
+  // Function to update user changes userChanges
+  const updateUserChanges = (changesData) => {
+    setUserChanges(changesData);
+  };
+
+  // D3.js Bar Chart setup
+  const createBarChart = () => {
+    console.log("Creating bar chart");
+    const margin = { top: 100, right: 50, bottom: 80, left: 50 };
+    const width = 600 - margin.left - margin.right;
+    const height = 400 - margin.top - margin.bottom;
+
+    // Append SVG to the container
+    const svg = d3
+      .select("#bar-chart-container")
+      .append("svg")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    // Define scales
+    const x = d3.scaleBand().rangeRound([0, width]).padding(0.1);
+    const y = d3.scaleLinear().rangeRound([height, 0]);
+
+    // Define axes
+    const xAxis = d3.axisBottom().scale(x);
+    const yAxis = d3.axisLeft().scale(y).ticks(10);
+    // Set domain of scales
+    x.domain(Object.keys(userChanges));
+    y.domain([0, d3.max(Object.values(userChanges))]);
+
+    // Append x-axis
+    svg
+      .append("g")
+      .attr("class", "x-axis")
+      .attr("transform", "translate(0," + height + ")")
+      .call(xAxis)
+      .selectAll("text")
+      .style("text-anchor", "end")
+      .attr("dx", "-.8em")
+      .attr("dy", ".15em")
+      .attr("transform", "rotate(-45)");
+
+    // Append y-axis
+    svg.append("g").attr("class", "y-axis").call(yAxis);
+
+    // Append bars
+    svg
+      .selectAll(".bar")
+      .data(Object.entries(userChanges))
+      .enter()
+      .append("rect")
+      .attr("class", "bar")
+      .attr("x", (d) => x(d[0]))
+      .attr("y", (d) => y(d[1]))
+      .attr("width", x.bandwidth())
+      .attr("height", (d) => height - y(d[1]));
+    // Append text labels
+    svg
+      .selectAll(".text")
+      .data(Object.entries(userChanges))
+      .enter()
+      .append("text")
+      .attr("class", "text")
+      .attr("x", (d) => x(d[0]) + x.bandwidth() / 2)
+      .attr("y", (d) => y(d[1]) - 5)
+      .attr("text-anchor", "middle")
+      .text((d) => d[1]);
+    console.log("true");
+  };
 
   function leaveRoom() {
     reactNavigator("/");
@@ -254,10 +351,11 @@ const EditorPage = () => {
         </div>
         <div>
           <button
-            onClick={leaveRoom}
-            className="text-green-400 border px-8 py-1 font-halloween"
+            onClick={toggleAnalysis}
+            className="border text-green-400 px-8 py-1 font-halloween"
           >
             Analysis
+            {showBarChart ? "hide" : "show"}
           </button>
         </div>
         <div>
@@ -278,6 +376,7 @@ const EditorPage = () => {
             </svg>
           </button>
         </div>
+        {/* <div id="bar-chart-container"></div> */}
         <div>
           <button onClick={copyRoomId} className="font-halloween">
             <svg
@@ -298,7 +397,20 @@ const EditorPage = () => {
         </div>
         <div className="w-[50px]"></div>
       </div>
-
+      <div
+        style={{
+          zIndex: "10",
+          borderRadius:"15px",
+          backgroundColor: "white",
+          margin: 0,
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          // msTransform: "translate(-50%,-50%)",
+          transform: "translate(-50%,-50%)",
+        }}
+        id="bar-chart-container"
+      ></div>
       <div className="editorWrap">
         <Editor
           socketRef={socketRef}

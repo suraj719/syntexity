@@ -128,6 +128,7 @@ const ChatMessage = mongoose.model("ChatMessage", {
 });
 
 const userSocketMap = {};
+let userChanges = {};
 
 function getAllConnectedClients(roomId) {
   return Array.from(io.sockets.adapter.rooms.get(roomId) || []).map(
@@ -139,6 +140,8 @@ function getAllConnectedClients(roomId) {
     }
   );
 }
+
+
 
 io.on("connection", (socket) => {
   console.log("socket connected", socket.id);
@@ -167,6 +170,17 @@ io.on("connection", (socket) => {
       message,
     });
   });
+
+  socket.on(ACTIONS.CODE_CHANGE, ({ roomId }) => {
+    console.log("changing..")
+    const senderUsername2 = userSocketMap[socket.id];
+    if (!userChanges[senderUsername2]) {
+      userChanges[senderUsername2] = 0;
+    }
+    userChanges[senderUsername2]++;
+    console.log(userChanges);
+    io.in(roomId).emit(ACTIONS.USER_CHANGES, userChanges);
+  });
 
   socket.on(ACTIONS.CODE_CHANGE, ({ roomId, code }) => {
     socket.in(roomId).emit(ACTIONS.CODE_CHANGE, { code });
