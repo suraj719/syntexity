@@ -11,7 +11,7 @@ export const initSocket = async () => {
   };
 
   try {
-    const socket = io(`${REACT_APP_BACKEND_URL}`, options);
+    const socket = io(`${process.env.REACT_APP_BACKEND_URL}`, options);
     await socket.connect();
     console.log('Socket connected with the id:', socket.id);
     return socket;
