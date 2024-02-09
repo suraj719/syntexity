@@ -6,12 +6,14 @@ import { language, cmtheme } from "../../src/atoms";
 import { useRecoilState } from "recoil";
 import ACTIONS from "../Actions";
 import { initSocket } from "../socket";
+import Stars from "../components/Stars/Stars";
 import {
   useLocation,
   useNavigate,
   Navigate,
   useParams,
 } from "react-router-dom";
+import axios from "axios";
 
 const EditorPage = () => {
   const [lang, setLang] = useRecoilState(language);
@@ -26,7 +28,25 @@ const EditorPage = () => {
   const location = useLocation();
   const { roomId } = useParams();
   const reactNavigator = useNavigate();
-
+  const [output, setOutput] = useState("");
+  const [code, setCode] = useState("");
+  // console.log(codeRef.current)
+  const handleOutput = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await axios.post("http://localhost:5050/execute", {
+        clientId: "1a84ac9ae69763aa3e7896e1389c4b5b",
+        clientSecret:
+          "ac9b8b22a649f702e95d066f35fb2eb3b07613d5f949fde39193d34fbf79b89b",
+        language: lang,
+        script: code,
+      });
+      console.log(res);
+      setOutput(res.data.output);
+    } catch (error) {
+      console.log(error);
+    }
+  };
   useEffect(() => {
     const init = async () => {
       socketRef.current = await initSocket();
@@ -38,7 +58,6 @@ const EditorPage = () => {
         toast.error("Socket connection failed, try again later.");
         reactNavigator("/");
       }
-
       socketRef.current.emit(ACTIONS.JOIN, {
         roomId,
         username: location.state?.username,
@@ -96,8 +115,10 @@ const EditorPage = () => {
 
   return (
     <div className="">
+      {/* <Stars /> */}
       <div className="flex justify-evenly pt-4 text-white text-2xl">
-        <div>
+        <div className="w-[50px]"></div>
+        {/* <div>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -128,7 +149,7 @@ const EditorPage = () => {
               d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3"
             />
           </svg>
-        </div>
+        </div> */}
         <div className="font-halloween">
           <label>select language:</label>
           <select
@@ -140,7 +161,7 @@ const EditorPage = () => {
             }}
           >
             <option value="c">C</option>
-            <option value="cpp">CPP</option>
+            <option value="cpp17">CPP</option>
             <option value="csharp">C#</option>
             <option value="css">CSS</option>
             <option value="dart">Dart</option>
@@ -151,7 +172,7 @@ const EditorPage = () => {
             <option value="javascript">JavaScript</option>
             <option value="jsx">JSX</option>
             <option value="php">PHP</option>
-            <option value="python">Python</option>
+            <option value="python3">Python</option>
             <option value="r">R</option>
             <option value="rust">Rust</option>
             <option value="ruby">Ruby</option>
@@ -240,10 +261,10 @@ const EditorPage = () => {
         </div>
         <div>
           <button
-            onClick={copyRoomId}
+            onClick={handleOutput}
             className="border px-8 py-1 font-halloween"
           >
-            compile
+            run
           </button>
         </div>
         <div>
@@ -275,12 +296,14 @@ const EditorPage = () => {
         <Editor
           socketRef={socketRef}
           roomId={roomId}
-          onCodeChange={(code) => {
-            codeRef.current = code;
+          onCodeChange={(newcode) => {
+            codeRef.current = newcode;
+            setCode(newcode);
           }}
           isLocked={isEditorLocked}
           currentUsername={location.state?.username}
           clients={clients}
+          output={output}
         />
       </div>
     </div>

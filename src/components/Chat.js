@@ -45,7 +45,7 @@ export default function Chat({ socketRef, roomId, currentUsername }) {
             return (
               <div key={index + username}>
                 {currentUsername === username ? (
-                  <div className="m-1 flex justify-end items-end text-white">
+                  <div className="m-1 flex gap-1 justify-end items-end text-white">
                     <p>{username}</p>
                     <p className="messageBox backgroundBlue"
                     style={{
@@ -54,7 +54,7 @@ export default function Chat({ socketRef, roomId, currentUsername }) {
                     >{message}</p>
                   </div>
                 ) : (
-                  <div className="m-1 flex justify- items-end text-white">
+                  <div className="m-1 flexgap-1 justify- items-end text-white">
                     <div className="messageBox backgroundLight">{message}</div>
                     <p>{username}</p>
                   </div>

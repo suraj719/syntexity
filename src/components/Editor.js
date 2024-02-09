@@ -41,6 +41,7 @@ const Editor = ({
   isLocked,
   currentUsername,
   clients,
+  output,
 }) => {
   // console.log(currentUsername)
   const editorRef = useRef(null);
@@ -118,7 +119,7 @@ const Editor = ({
       socketRef.current.off(ACTIONS.CODE_CHANGE);
     };
   }, [socketRef.current]);
-
+  // console.log(code)
   const handleFileUpload = (event) => {
     const file = event.target.files[0];
     const reader = new FileReader();
@@ -154,10 +155,63 @@ const Editor = ({
 
   return (
     <div className="flex h-[90vh]">
+      <div
+        className="text-white flex gap-4"
+        style={{
+          position: "absolute",
+          top: "20px",
+          left: "20px",
+        }}
+      >
+        <input
+          type="file"
+          id="upload"
+          onChange={handleFileUpload}
+          className="hidden"
+        />
+        <label for="upload" className="font-bold">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={3.6}
+            stroke="currentColor"
+            className="w-6 h-6"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"
+            />
+          </svg>
+        </label>
+        <div onClick={handleSaveCode} className="font-bold">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={3.6}
+            stroke="currentColor"
+            className="w-6 h-6"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3"
+            />
+          </svg>
+        </div>
+      </div>
       {/* <input type="file" onChange={handleFileUpload} />
       <button onClick={handleSaveCode}>Save Code</button> */}
-      <div className="border-2 rounded-lg p-2 m-2">
-        <textarea id="realtimeEditor"></textarea>
+      <div>
+        <div className="border-2 rounded-lg p-2 m-2">
+          <textarea id="realtimeEditor"></textarea>
+        </div>
+        <div className="border-2 rounded-lg h-[20vh] p-2 m-2">
+          <p className="text-white font-halloween text-2xl">Output</p>
+          <p className="text-white mt-4">{output}</p>
+        </div>
       </div>
       <ChatArea
         socketRef={socketRef}

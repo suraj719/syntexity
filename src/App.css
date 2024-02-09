@@ -12,7 +12,7 @@
   font-family: "Halloween";
 }
 .CodeMirror {
-  min-height: 85vh;
+  min-height: 65vh;
   /* width: 70vw; */
   /* overflow: hidden; */
   width: calc(100vw - 150px);
