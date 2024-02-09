@@ -279,6 +279,8 @@ const EditorPage = () => {
             codeRef.current = code;
           }}
           isLocked={isEditorLocked}
+          currentUsername={location.state?.username}
+          clients={clients}
         />
       </div>
     </div>

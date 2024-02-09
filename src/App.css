@@ -23,13 +23,37 @@
 body {
   /* overflow: hidden; */
 }
+.messageBox {
+  font-size: 1.2rem;
+  word-wrap: break-word;
+  text-align: justify;
+  border-radius: 20px;
+  padding: 0px 12px;
+  color: white;
+  display: inline-block;
+  max-width: 50%;
+  min-width: 1vw;
+  display: flex;
+  flex-direction: row;
+}
+.backgroundBlue {
+  word-wrap: break-word;
+
+  background: #2979ff;
+  border-top-right-radius: 0px;
+}
+
+.backgroundLight {
+  background: #32a852;
+  border-top-left-radius: 0px;
+}
 @media screen and (min-width: 480px) {
   .CodeMirror {
-      height: 100vh;
-      width: calc(100vw - 350px);
-      font-size: 16px;
-      line-height: 1.6;
-      padding-top: 20px;
+    height: 100vh;
+    width: calc(100vw - 350px);
+    font-size: 16px;
+    line-height: 1.6;
+    padding-top: 20px;
   }
 }
 /* option:focus{

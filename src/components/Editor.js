@@ -34,7 +34,15 @@ const languageFileExtensions = {
   // Add more languages and their corresponding file extensions as needed
 };
 
-const Editor = ({ socketRef, roomId, onCodeChange, isLocked }) => {
+const Editor = ({
+  socketRef,
+  roomId,
+  onCodeChange,
+  isLocked,
+  currentUsername,
+  clients,
+}) => {
+  // console.log(currentUsername)
   const editorRef = useRef(null);
   const lang = useRecoilValue(language);
   const editorTheme = useRecoilValue(cmtheme);
@@ -50,10 +58,12 @@ const Editor = ({ socketRef, roomId, onCodeChange, isLocked }) => {
         {
           mode: { name: lang },
           theme: editorTheme,
-          autoCloseTags: true,
+          autofocus: true,
+          dragDrop: true,
+          autoCloseTags: false,
           autoCloseBrackets: true,
           lineNumbers: true,
-          extraKeys: { "Ctrl-Space": "autocomplete" },
+          extraKeys: { Tab: "autocomplete" },
           autocomplete: true,
           readOnly: isLocked ? "nocursor" : false,
         }
@@ -149,7 +159,12 @@ const Editor = ({ socketRef, roomId, onCodeChange, isLocked }) => {
       <div className="border-2 rounded-lg p-2 m-2">
         <textarea id="realtimeEditor"></textarea>
       </div>
-      <ChatArea socketRef={socketRef} roomId={roomId} />
+      <ChatArea
+        socketRef={socketRef}
+        roomId={roomId}
+        currentUsername={currentUsername}
+        clients={clients}
+      />
     </div>
   );
 };
