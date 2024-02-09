@@ -30,6 +30,7 @@ const EditorPage = () => {
   const reactNavigator = useNavigate();
   const [output, setOutput] = useState("");
   const [code, setCode] = useState("");
+  const [onlineUsersCount, setOnlineUsersCount] = useState(0);
   // console.log(codeRef.current)
   const handleOutput = async (e) => {
     e.preventDefault();
@@ -72,6 +73,7 @@ const EditorPage = () => {
             console.log(`${username} joined`);
           }
           setClients(clients);
+          setOnlineUsersCount(clients.length);
           socketRef.current.emit(ACTIONS.SYNC_CODE, {
             code: codeRef.current,
             socketId,
@@ -85,6 +87,7 @@ const EditorPage = () => {
         setClients((prev) => {
           return prev.filter((client) => client.socketId !== socketId);
         });
+        setOnlineUsersCount((prevCount) => prevCount - 1);
       });
     };
     init();
@@ -115,45 +118,15 @@ const EditorPage = () => {
 
   return (
     <div className="">
-      {/* <Stars /> */}
-      <div className="flex justify-evenly pt-4 text-white text-2xl">
-        <div className="w-[50px]"></div>
-        {/* <div>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={3.6}
-            stroke="currentColor"
-            className="w-6 h-6"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"
-            />
-          </svg>
+      <Stars />
+      <div className="flex items-center justify-evenly pt-4 text-white text-2xl">
+        <div className="font-halloween mx-2">
+          <span className="text-red-400">Online Users:{onlineUsersCount}</span>
         </div>
-        <div className="font-bold">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={3.6}
-            stroke="currentColor"
-            className="w-6 h-6"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3"
-            />
-          </svg>
-        </div> */}
         <div className="font-halloween">
-          <label>select language:</label>
+          <label className="text-green-300">select language:</label>
           <select
-            className="ms-4 text-xl bg-black p-2 border text-white"
+            className="h-full ms-4 text-xl bg-black p-2 border text-white"
             value={lang}
             onChange={(e) => {
               setLang(e.target.value);
@@ -183,9 +156,9 @@ const EditorPage = () => {
           </select>
         </div>
         <div className="font-halloween">
-          <label>select theme:</label>
+          <label className="text-violet-300">select theme:</label>
           <select
-            className="ms-4 text-xl bg-black p-2 border text-white select-halloween"
+            className="h-full ms-4 text-xl bg-black p-2 border text-white select-halloween"
             value={them}
             onChange={(e) => {
               setThem(e.target.value);
@@ -259,39 +232,70 @@ const EditorPage = () => {
             <option value="zenburn">zenburn</option>
           </select>
         </div>
-        <div>
-          <button
-            onClick={handleOutput}
-            className="border px-8 py-1 font-halloween"
-          >
-            run
-          </button>
-        </div>
+
         <div>
           <button
             onClick={() => setEditorLocked(!isEditorLocked)}
-            className="border px-8 py-1 font-halloween"
+            className="border px-8 py-1 font-halloween text-red-300"
           >
             {isEditorLocked ? "Unlock Editor" : "lock Editor"}
           </button>
         </div>
         <div>
           <button
-            onClick={copyRoomId}
-            className="border px-8 py-1 font-halloween"
+            onClick={leaveRoom}
+            className="text-red-400 border px-8 py-1 font-halloween"
           >
-            copy room id
+            Leave
           </button>
         </div>
         <div>
           <button
             onClick={leaveRoom}
-            className="border px-8 py-1 font-halloween"
+            className="text-green-400 border px-8 py-1 font-halloween"
           >
-            Leave
+            Analysis
           </button>
         </div>
+        <div>
+          <button onClick={handleOutput} className="font-halloween">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={3.5}
+              stroke="currentColor"
+              className="w-6 h-6"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z"
+              />
+            </svg>
+          </button>
+        </div>
+        <div>
+          <button onClick={copyRoomId} className="font-halloween">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              className="w-6 h-6"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z"
+              />
+            </svg>
+          </button>
+        </div>
+        <div className="w-[50px]"></div>
       </div>
+
       <div className="editorWrap">
         <Editor
           socketRef={socketRef}

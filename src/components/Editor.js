@@ -160,7 +160,7 @@ const Editor = ({
         style={{
           position: "absolute",
           top: "20px",
-          left: "20px",
+          right: "15px",
         }}
       >
         <input

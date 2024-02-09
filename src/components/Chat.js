@@ -67,7 +67,7 @@ export default function Chat({ socketRef, roomId, currentUsername }) {
           <input
             type="text"
             value={message}
-            className="h-full outline-none rounded-l-lg text-black"
+            className="h-full px-1 outline-none rounded-l-lg text-black"
             onChange={(e) => setMessage(e.target.value)}
             placeholder="Type your message..."
           />
