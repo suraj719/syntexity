@@ -1,0 +1,69 @@
+{
+  "name": "realtime-code-editor",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@testing-library/jest-dom": "^5.16.4",
+    "@testing-library/react": "^12.1.4",
+    "@testing-library/user-event": "^13.5.0",
+    "axios": "^1.6.7",
+    "bcryptjs": "^2.4.3",
+    "codemirror": "^5.65.2",
+    "express": "^4.17.3",
+    "express-session": "^1.18.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongodb": "^6.3.0",
+    "mongoose": "^8.1.1",
+    "passport": "^0.7.0",
+    "passport-local": "^1.0.0",
+    "passport-local-mongoose": "^8.0.0",
+    "react": "^18.0.0",
+    "react-avatar": "^5.0.3",
+    "react-dom": "^18.0.0",
+    "react-hot-toast": "^2.2.0",
+    "react-router-dom": "^6.3.0",
+    "react-scripts": "^4.0.3",
+    "recoil": "^0.7.0",
+    "socket.io": "^4.4.1",
+    "socket.io-client": "^4.4.1",
+    "uuid": "^8.3.2",
+    "web-vitals": "^2.1.4",
+    "y-codemirror": "^3.0.1",
+    "y-websocket": "^1.5.3",
+    "yjs": "^13.6.11"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "server:dev": "nodemon server.js",
+    "server:prod": "node server.js",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ],
+    "rules": {
+      "no-unused-vars": "off",
+      "react-hooks/exhaustive-deps": "off"
+    }
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15",
+    "tailwindcss": "^3.4.1"
+  }
+}

@@ -1,0 +1,58 @@
+/* File: src/components/ChatArea.css */
+.chat-area-container {
+    position: relative;
+  }
+  
+  .chat-popup {
+    display: none;
+    position: fixed;
+    bottom: 350px;
+    background-color: #E3F2FD;
+    right: 100px;
+    border: 1px solid #E3F2FD;
+    max-width: 300px;
+    max-height: 300px;
+    overflow: hidden;
+  }
+  
+  .chat-popup.show {
+    display: block;
+  }
+  
+  .chat-header {
+    padding: 10px;
+    background: #f1f1f1;
+    border-bottom: 1px solid #ccc;
+  }
+  
+  .chat-body {
+    padding: 10px;
+    overflow-y: auto;
+    height: 100px;
+    max-height: 200px;
+  }
+  
+  .chat-input {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    border-top: 1px solid #ccc;
+  }
+
+  .chat-toggle {
+    position: fixed;
+    bottom: 370px;
+    right: 3px;
+    z-index: 1000;
+    outline: none;
+    border: none;
+    height: 50px;
+    width: 50px;
+    color: bisque;
+    display: flex;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    background: #724ae8;
+    transition: all 0.2s ease;
+  }
