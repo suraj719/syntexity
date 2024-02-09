@@ -142,7 +142,9 @@ function getAllConnectedClients(roomId) {
 
 io.on("connection", (socket) => {
   console.log("socket connected", socket.id);
-
+  socket.on("keep-alive", () => {
+    console.log("Received keep-alive message from client:", socket.id);
+  });
   socket.on(ACTIONS.JOIN, ({ roomId, username }) => {
     userSocketMap[socket.id] = username;
     socket.join(roomId);
