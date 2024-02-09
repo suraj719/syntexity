@@ -9,7 +9,7 @@ const options = {
   transports: ["websocket"],
 };
 
-const socket = io("http://localhost:5050", options);
+const socket = io(process.env.REACT_APP_BACKEND_URL, options);
 const sendKeepAlive = () => {
   socket.emit("keep-alive");
 };
