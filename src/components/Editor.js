@@ -81,14 +81,18 @@ const Editor = ({ socketRef, roomId, onCodeChange, isLocked }) => {
         roomId,
         editorLocked: isLocked,
       });
-      socketRef.current.on(ACTIONS.TOGGLE_EDITOR_LOCK, ({ roomId, editorLocked }) => {
-        editorRef.current.setOption('readOnly', editorLocked ? 'nocursor' : false);
-      });
+      socketRef.current.on(
+        ACTIONS.TOGGLE_EDITOR_LOCK,
+        ({ roomId, editorLocked }) => {
+          editorRef.current.setOption(
+            "readOnly",
+            editorLocked ? "nocursor" : false
+          );
+        }
+      );
       // Update CodeMirror's readOnly state based on the received lock status
-     
     }
   }, [isLocked, socketRef.current]);
-  
 
   useEffect(() => {
     if (socketRef.current) {
@@ -139,10 +143,12 @@ const Editor = ({ socketRef, roomId, onCodeChange, isLocked }) => {
   };
 
   return (
-    <div>
-      <input type="file" onChange={handleFileUpload} />
-      <button onClick={handleSaveCode}>Save Code</button>
-      <textarea id="realtimeEditor"></textarea>
+    <div className="flex h-[90vh]">
+      {/* <input type="file" onChange={handleFileUpload} />
+      <button onClick={handleSaveCode}>Save Code</button> */}
+      <div className="border-2 rounded-lg p-2 m-2">
+        <textarea id="realtimeEditor"></textarea>
+      </div>
       <ChatArea socketRef={socketRef} roomId={roomId} />
     </div>
   );

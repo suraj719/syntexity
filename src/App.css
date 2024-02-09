@@ -11,7 +11,32 @@
 .password-halloween::placeholder {
   font-family: "Halloween";
 }
-.homePageWrapper {
+.CodeMirror {
+  min-height: 85vh;
+  /* width: 70vw; */
+  /* overflow: hidden; */
+  width: calc(100vw - 150px);
+  font-size: 16px;
+  line-height: 1.6;
+  padding-top: 20px;
+}
+body {
+  /* overflow: hidden; */
+}
+@media screen and (min-width: 480px) {
+  .CodeMirror {
+      height: 100vh;
+      width: calc(100vw - 350px);
+      font-size: 16px;
+      line-height: 1.6;
+      padding-top: 20px;
+  }
+}
+/* option:focus{
+  background-color: aqua;
+  color: red !important;
+} */
+/* .homePageWrapper {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -104,10 +129,10 @@ footer a:hover {
 }
 
 .mainWrap {
-  display: grid;
+  /* display: grid;
   grid-template-columns: 180px 1fr;
-  height: 100vh;
-}
+  height: 100vh; */
+/* }
 
 @media screen and (min-width: 480px) {
   .mainWrap {
@@ -189,4 +214,4 @@ footer a:hover {
       line-height: 1.6;
       padding-top: 20px;
   }
-}
+} */

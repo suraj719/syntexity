@@ -19,8 +19,7 @@ const EditorPage = () => {
 
   const [clients, setClients] = useState([]);
 
-    const [isEditorLocked, setEditorLocked] = useState(false);
-
+  const [isEditorLocked, setEditorLocked] = useState(false);
 
   const socketRef = useRef(null);
   const codeRef = useRef(null);
@@ -28,7 +27,6 @@ const EditorPage = () => {
   const { roomId } = useParams();
   const reactNavigator = useNavigate();
 
-  
   useEffect(() => {
     const init = async () => {
       socketRef.current = await initSocket();
@@ -97,30 +95,49 @@ const EditorPage = () => {
   }
 
   return (
-    <div className="mainWrap">
-      <div className="aside">
-        <div className="asideInner">
-          <div className="logo">
-            <img className="logoImage" src="/code-sync.png" alt="logo" />
-          </div>
-          <h3>Connected</h3>
-          <div className="clientsList">
-  {clients.map((client) => (
-    <Client key={client.socketId} username={client.username} />
-  ))}
-</div>
-
+    <div className="">
+      <div className="flex justify-evenly pt-4 text-white text-2xl">
+        <div>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={3.6}
+            stroke="currentColor"
+            className="w-6 h-6"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"
+            />
+          </svg>
         </div>
-
-        <label>
-          Select Language:
+        <div className="font-bold">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={3.6}
+            stroke="currentColor"
+            className="w-6 h-6"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3"
+            />
+          </svg>
+        </div>
+        <div className="font-halloween">
+          <label>select language:</label>
           <select
+            className="ms-4 text-xl bg-black p-2 border text-white"
             value={lang}
             onChange={(e) => {
               setLang(e.target.value);
               window.location.reload();
             }}
-            className="seLang text-black"
           >
             <option value="c">C</option>
             <option value="cpp">CPP</option>
@@ -143,17 +160,16 @@ const EditorPage = () => {
             <option value="xml">XML</option>
             <option value="yaml">YAML</option>
           </select>
-        </label>
-
-        <label>
-          Select Theme:
+        </div>
+        <div className="font-halloween">
+          <label>select theme:</label>
           <select
+            className="ms-4 text-xl bg-black p-2 border text-white select-halloween"
             value={them}
             onChange={(e) => {
               setThem(e.target.value);
               window.location.reload();
             }}
-            className="seLang text-black"
           >
             <option value="default">default</option>
             <option value="3024-day">3024-day</option>
@@ -221,22 +237,40 @@ const EditorPage = () => {
             <option value="yonce">yonce</option>
             <option value="zenburn">zenburn</option>
           </select>
-        </label>
-        <button
-          className="btn lockBtn"
-          onClick={() => setEditorLocked(!isEditorLocked)}
-        >
-          {isEditorLocked ? "Unlock Editor" : "lock Editor"}
-        </button>
-
-        <button className="btn copyBtn" onClick={copyRoomId}>
-          Copy ROOM ID
-        </button>
-        <button className="btn leaveBtn" onClick={leaveRoom}>
-          Leave
-        </button>
+        </div>
+        <div>
+          <button
+            onClick={copyRoomId}
+            className="border px-8 py-1 font-halloween"
+          >
+            compile
+          </button>
+        </div>
+        <div>
+          <button
+            onClick={() => setEditorLocked(!isEditorLocked)}
+            className="border px-8 py-1 font-halloween"
+          >
+            {isEditorLocked ? "Unlock Editor" : "lock Editor"}
+          </button>
+        </div>
+        <div>
+          <button
+            onClick={copyRoomId}
+            className="border px-8 py-1 font-halloween"
+          >
+            copy room id
+          </button>
+        </div>
+        <div>
+          <button
+            onClick={leaveRoom}
+            className="border px-8 py-1 font-halloween"
+          >
+            Leave
+          </button>
+        </div>
       </div>
-
       <div className="editorWrap">
         <Editor
           socketRef={socketRef}
