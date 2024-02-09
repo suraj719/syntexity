@@ -16,7 +16,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "https://syntexity.netlify.app/", // Replace with the actual origin of your client application
+    origin: "*", // Replace with the actual origin of your client application
     methods: ["GET", "POST"],
     allowedHeaders: ["my-custom-header"],
     credentials: true,
@@ -141,95 +141,62 @@ function getAllConnectedClients(roomId) {
 }
 
 io.on("connection", (socket) => {
-  console.log("A user connected:", socket.id);
+  console.log("socket connected", socket.id);
 
-  socket.on("joinRoom", ({ username, roomId }) => {
-    userSocketMap[socket.id] = username; // Store the username associated with the socket ID
-    socket.join(roomId); // Join the specified room
-
-    // Get all connected clients in the room
+  socket.on(ACTIONS.JOIN, ({ roomId, username }) => {
+    userSocketMap[socket.id] = username;
+    socket.join(roomId);
     const clients = getAllConnectedClients(roomId);
-
-    // Iterate over each client in the room and emit a message to inform them about the new user
     clients.forEach(({ socketId }) => {
-      io.to(socketId).emit("userJoined", {
-        clients, // Send the updated list of clients to each client
-        username, // Send the username of the new user
-        socketId: socket.id, // Send the socket ID of the new user
+      io.to(socketId).emit(ACTIONS.JOINED, {
+        clients,
+        username,
+        socketId: socket.id,
       });
     });
   });
 
-  // Handle keep-alive messages from the client
-  socket.on("keep-alive", () => {
-    console.log("Received keep-alive message from client:", socket.id);
+  socket.on(ACTIONS.SEND_MESSAGE, ({ roomId, message }) => {
+    const senderUsername = userSocketMap[socket.id];
+    const chatMessage = new ChatMessage({ senderUsername, message });
+    chatMessage.save();
+    io.in(roomId).emit(ACTIONS.RECEIVE_MESSAGE, {
+      username: senderUsername,
+      message,
+    });
   });
 
-  // Other event handlers and logic for your application
+  socket.on(ACTIONS.CODE_CHANGE, ({ roomId, code }) => {
+    socket.in(roomId).emit(ACTIONS.CODE_CHANGE, { code });
+  });
 
-  socket.on("disconnect", () => {
-    console.log("User disconnected:", socket.id);
-    delete userSocketMap[socket.id]; // Remove the disconnected user from the map
+  socket.on(ACTIONS.SYNC_CODE, ({ socketId, code }) => {
+    io.to(socketId).emit(ACTIONS.CODE_CHANGE, { code });
+  });
+
+  socket.on(ACTIONS.TOGGLE_EDITOR_LOCK, ({ roomId, editorLocked }) => {
+    // Emit the new TOGGLE_EDITOR_LOCK action to other users in the room
+    socket.to(roomId).emit(ACTIONS.TOGGLE_EDITOR_LOCK, { editorLocked });
+  });
+
+  // Handle UPLOAD_FILE event on the server side
+  socket.on("UPLOAD_FILE", ({ roomId, fileContent }) => {
+    // Broadcast the file content to all participants in the room
+    io.to(roomId).emit("SYNC_CODE", { code: fileContent });
+  });
+
+  socket.on("disconnecting", () => {
+    const rooms = [...socket.rooms];
+    rooms.forEach((roomId) => {
+      socket.in(roomId).emit(ACTIONS.DISCONNECTED, {
+        socketId: socket.id,
+        username: userSocketMap[socket.id],
+      });
+    });
+    delete userSocketMap[socket.id];
+    socket.leave();
   });
 });
-
-// io.on("connection", (socket) => {
-//   console.log("socket connected", socket.id);
-
-//   socket.on(ACTIONS.JOIN, ({ roomId, username }) => {
-//     userSocketMap[socket.id] = username;
-//     socket.join(roomId);
-//     const clients = getAllConnectedClients(roomId);
-//     clients.forEach(({ socketId }) => {
-//       io.to(socketId).emit(ACTIONS.JOINED, {
-//         clients,
-//         username,
-//         socketId: socket.id,
-//       });
-//     });
-//   });
-
-//   socket.on(ACTIONS.SEND_MESSAGE, ({ roomId, message }) => {
-//     const senderUsername = userSocketMap[socket.id];
-//     const chatMessage = new ChatMessage({ senderUsername, message });
-//     chatMessage.save();
-//     io.in(roomId).emit(ACTIONS.RECEIVE_MESSAGE, {
-//       username: senderUsername,
-//       message,
-//     });
-//   });
-
-//   socket.on(ACTIONS.CODE_CHANGE, ({ roomId, code }) => {
-//     socket.in(roomId).emit(ACTIONS.CODE_CHANGE, { code });
-//   });
-
-//   socket.on(ACTIONS.SYNC_CODE, ({ socketId, code }) => {
-//     io.to(socketId).emit(ACTIONS.CODE_CHANGE, { code });
-//   });
-
-//   socket.on(ACTIONS.TOGGLE_EDITOR_LOCK, ({ roomId, editorLocked }) => {
-//     // Emit the new TOGGLE_EDITOR_LOCK action to other users in the room
-//     socket.to(roomId).emit(ACTIONS.TOGGLE_EDITOR_LOCK, { editorLocked });
-//   });
-
-//   // Handle UPLOAD_FILE event on the server side
-//   socket.on("UPLOAD_FILE", ({ roomId, fileContent }) => {
-//     // Broadcast the file content to all participants in the room
-//     io.to(roomId).emit("SYNC_CODE", { code: fileContent });
-//   });
-
-//   socket.on("disconnecting", () => {
-//     const rooms = [...socket.rooms];
-//     rooms.forEach((roomId) => {
-//       socket.in(roomId).emit(ACTIONS.DISCONNECTED, {
-//         socketId: socket.id,
-//         username: userSocketMap[socket.id],
-//       });
-//     });
-//     delete userSocketMap[socket.id];
-//     socket.leave();
-//   });
-// });
 
 const PORT = process.env.PORT || 5050;
 server.listen(PORT, () => console.log(`Listening on port ${PORT}`));
