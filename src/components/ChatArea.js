@@ -88,7 +88,7 @@ const ChatArea = ({ socketRef, roomId, currentUsername, clients }) => {
             participants
           </button>
         </div>
-        <div className="border rounded-lg  w-full h-[85%]">
+        <div className="border rounded-lg  w-full h-[85%] overflow-auto">
           {/* {chatAndPeople ? (
             <Chat
               socketRef={socketRef}

@@ -221,10 +221,10 @@ const EditorPage = () => {
       <Stars />
       <div className="flex items-center justify-evenly pt-4 text-white text-2xl">
         <div className="font-halloween mx-2">
-          <span className="text-red-400">Online Users:{onlineUsersCount}</span>
+          <span className="text-red-400">Users:{onlineUsersCount}</span>
         </div>
         <div className="font-halloween">
-          <label className="text-green-300">select language:</label>
+          <label className="text-green-300">Language:</label>
           <select
             className="h-full ms-4 text-xl bg-black p-2 border text-white"
             value={lang}
@@ -256,7 +256,7 @@ const EditorPage = () => {
           </select>
         </div>
         <div className="font-halloween">
-          <label className="text-violet-300">select theme:</label>
+          <label className="text-violet-300">Themes:</label>
           <select
             className="h-full ms-4 text-xl bg-black p-2 border text-white select-halloween"
             value={them}

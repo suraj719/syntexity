@@ -55,7 +55,10 @@ export default function Chat({ socketRef, roomId, currentUsername }) {
                   </div>
                 ) : (
                   <div className="m-1 flexgap-1 justify- items-end text-white">
-                    <div className="messageBox backgroundLight">{message}</div>
+                    <div className="messageBox backgroundLight" style={{
+                        wordBreak:"break-word"
+                    }}>{message}</div>
+                    
                     <p>{username}</p>
                   </div>
                 )}
@@ -67,7 +70,7 @@ export default function Chat({ socketRef, roomId, currentUsername }) {
           <input
             type="text"
             value={message}
-            className="h-full px-1 outline-none rounded-l-lg text-black"
+            className="h-full  py-3 px-1 outline-none rounded-l-lg text-black"
             onChange={(e) => setMessage(e.target.value)}
             placeholder="Type your message..."
           />
