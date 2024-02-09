@@ -16,10 +16,13 @@ export default function Login() {
     e.preventDefault();
     setIsLoading(true);
     try {
-      const response = await axios.post("http://localhost:5050/api/login", {
-        username: username,
-        password: password,
-      });
+      const response = await axios.post(
+        `${process.env.REACT_APP_BACKEND_URL}/api/login`,
+        {
+          username: username,
+          password: password,
+        }
+      );
 
       if (response.data) {
         console.log("success");

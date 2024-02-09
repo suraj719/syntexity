@@ -35,13 +35,16 @@ const EditorPage = () => {
   const handleOutput = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("http://localhost:5050/execute", {
-        clientId: "1a84ac9ae69763aa3e7896e1389c4b5b",
-        clientSecret:
-          "ac9b8b22a649f702e95d066f35fb2eb3b07613d5f949fde39193d34fbf79b89b",
-        language: lang,
-        script: code,
-      });
+      const res = await axios.post(
+        `${process.env.REACT_APP_BACKEND_URL}/execute`,
+        {
+          clientId: "1a84ac9ae69763aa3e7896e1389c4b5b",
+          clientSecret:
+            "ac9b8b22a649f702e95d066f35fb2eb3b07613d5f949fde39193d34fbf79b89b",
+          language: lang,
+          script: code,
+        }
+      );
       console.log(res);
       setOutput(res.data.output);
     } catch (error) {

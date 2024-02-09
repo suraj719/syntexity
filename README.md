@@ -4,37 +4,40 @@ _syntexity web app is a code editor that allows its users to collaborate and wri
 
 <br/>
 
-**Link to the web app:** [https://code-sync-qq8w.onrender.com/](https://code-sync-qq8w.onrender.com/) <br/>
+**Link to the web app:** [https://syntexity.vercel.app//](https://syntexity.vercel.app//) <br/>
 
 <br/>
 
-### Tech Stack ###
-  **Frontend**
-  * React
-  * Recoil
-  * CodeMirror
-  * react-hot-toast
-  * axios
-  * react-router
-  
-  **Backend**
-  * Node.js
-  * Express.js
-  * Socket.io
+### Tech Stack
+
+**Frontend**
+
+- React
+- Recoil
+- CodeMirror
+- react-hot-toast
+- axios
+- react-router
+
+**Backend**
+
+- Node.js
+- Express.js
+- Socket.io
 
 <br/>
 
-### Features ###
-* **Responsive Design**
-* **Realtime Collobarative Code Editor**
-* **Supports syntax of 21 programming languages**
-* **Supports 63 design themes**
+### Features
 
+- **Responsive Design**
+- **Realtime Collobarative Code Editor**
+- **Supports syntax of 21 programming languages**
+- **Supports 63 design themes**
 
 <br/>
 <br/>
 
-- - - -
+---
 
 ## Getting Started with Create React App
 
