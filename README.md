@@ -1,10 +1,10 @@
 # syntexity
 
-_syntexity web app is a code editor that allows its users to collaborate and write code together. It provides basic editing features and the changes are synced in realtime. The editor supports syntax of 21 programming languages and offers 63 design themes._
+_Syntexity web app is a code editor that allows its users to collaborate and write code together. It provides basic editing features and the changes are synced in realtime. The editor supports syntax of multiple programming languages and offers design themes._
 
 <br/>
 
-**Link to the web app:** [https://syntexity.vercel.app//](https://syntexity.vercel.app//) <br/>
+**Link to the web app:** [https://syntexity.onrender.com//](https://syntexity.onrender.com//) <br/>
 
 <br/>
 
@@ -15,15 +15,18 @@ _syntexity web app is a code editor that allows its users to collaborate and wri
 - React
 - Recoil
 - CodeMirror
-- react-hot-toast
-- axios
-- react-router
+- React-hot-toast
+- Axios
+- React-router
+- D3
+- TailwindCSS
 
 **Backend**
 
 - Node.js
 - Express.js
 - Socket.io
+- WebRTC
 
 <br/>
 
@@ -31,8 +34,8 @@ _syntexity web app is a code editor that allows its users to collaborate and wri
 
 - **Responsive Design**
 - **Realtime Collobarative Code Editor**
-- **Supports syntax of 21 programming languages**
-- **Supports 63 design themes**
+- **Supports syntax of multiple programming languages**
+- **Supports design themes**
 
 <br/>
 <br/>
