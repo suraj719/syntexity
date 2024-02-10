@@ -128,7 +128,7 @@ const ChatMessage = mongoose.model("ChatMessage", {
 });
 
 const userSocketMap = {};
-let userChanges = {};
+
 
 function getAllConnectedClients(roomId) {
   return Array.from(io.sockets.adapter.rooms.get(roomId) || []).map(
@@ -140,7 +140,7 @@ function getAllConnectedClients(roomId) {
     }
   );
 }
-
+let userChanges = {};
 
 
 io.on("connection", (socket) => {
@@ -148,6 +148,8 @@ io.on("connection", (socket) => {
   // socket.on("keep-alive", () => {
   //   console.log("Received keep-alive message from client:", socket.id);
   // });
+  userChanges={};
+
   socket.on(ACTIONS.JOIN, ({ roomId, username }) => {
     userSocketMap[socket.id] = username;
     socket.join(roomId);
@@ -178,7 +180,7 @@ io.on("connection", (socket) => {
       userChanges[senderUsername2] = 0;
     }
     userChanges[senderUsername2]++;
-    console.log(userChanges);
+    // console.log(userChanges);
     io.in(roomId).emit(ACTIONS.USER_CHANGES, userChanges);
   });
 
