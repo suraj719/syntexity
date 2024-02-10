@@ -57,6 +57,7 @@ const EditorPage = () => {
       console.log(error);
     }
   };
+
   useEffect(() => {
     const init = async () => {
       socketRef.current = await initSocket();
@@ -110,6 +111,68 @@ const EditorPage = () => {
       socketRef.current.off(ACTIONS.JOINED);
       socketRef.current.off(ACTIONS.DISCONNECTED);
       socketRef.current.disconnect();
+    };
+  }, []);
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      // Check if Ctrl + L is pressed
+      if (event.ctrlKey && event.key === "l") {
+        // Find the Lock Editor button
+        const lockEditorButton = document.getElementById("lock-editor-button");
+        // Trigger click event on the Lock Editor button
+        lockEditorButton.click();
+        event.preventDefault(); // Prevent default browser behavior
+      }
+    };
+
+    // Add event listener when component mounts
+    document.addEventListener("keydown", handleKeyDown);
+
+    // Remove event listener when component unmounts
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      // Check if Ctrl + Q is pressed
+      if (event.ctrlKey && event.key === "q") {
+        // Find the Leave button
+        const leaveButton = document.querySelector(
+          ".font-halloween.text-red-400"
+        );
+        // Trigger click event on the Leave button
+        leaveButton.click();
+        event.preventDefault(); // Prevent default browser behavior
+      }
+    };
+
+    // Add event listener when component mounts
+    document.addEventListener("keydown", handleKeyDown);
+
+    // Remove event listener when component unmounts
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      // Check if Ctrl + E is pressed
+      if (event.ctrlKey && event.key === "e") {
+        // Find the Analysis button
+        const analysisButton = document.getElementById("analysis-button");
+        // Trigger click event on the Analysis button
+        analysisButton.click();
+        event.preventDefault(); // Prevent default browser behavior
+      }
+    };
+
+    // Add event listener when component mounts
+    document.addEventListener("keydown", handleKeyDown);
+
+    // Remove event listener when component unmounts
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
     };
   }, []);
 
@@ -335,14 +398,16 @@ const EditorPage = () => {
 
         <div>
           <button
+            id="lock-editor-button" // Add id attribute here
             onClick={() => setEditorLocked(!isEditorLocked)}
             className="border px-8 py-1 font-halloween text-red-300"
           >
-            {isEditorLocked ? "Unlock Editor" : "lock Editor"}
+            {isEditorLocked ? "Unlock Editor" : "Lock Editor"}
           </button>
         </div>
         <div>
           <button
+            id="analysis-button" // Add id attribute here
             onClick={toggleAnalysis}
             className="border text-green-400 px-8 py-1 font-halloween"
           >
@@ -352,6 +417,7 @@ const EditorPage = () => {
         </div>
         <div>
           <button
+            id="leave-room-button" // Add id attribute here
             onClick={leaveRoom}
             className="text-red-400 border px-8 py-1 font-halloween"
           >
@@ -400,7 +466,7 @@ const EditorPage = () => {
       <div
         style={{
           zIndex: "10",
-          borderRadius:"15px",
+          borderRadius: "15px",
           backgroundColor: "white",
           margin: 0,
           position: "absolute",
