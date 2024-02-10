@@ -28,6 +28,7 @@
     "recoil": "^0.7.0",
     "socket.io": "^4.4.1",
     "socket.io-client": "^4.4.1",
+    "typewriter-effect": "^2.21.0",
     "uuid": "^8.3.2",
     "web-vitals": "^2.1.4",
     "y-codemirror": "^3.0.1",

@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router";
+import toast from "react-hot-toast";
+
 // import { useSignIn } from "react-auth-kit";
 // import useSignIn from "react-auth-kit/hooks/useSignIn";
 
@@ -25,9 +27,11 @@ export default function Login() {
       );
 
       if (response.data) {
+        toast.success("loggin successful")
         console.log("success");
         navigate("/room");
       } else {
+        toast.error("failed to login")
         console.log("failed login");
       }
     } catch (error) {

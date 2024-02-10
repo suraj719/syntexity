@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router";
+import toast from "react-hot-toast";
 
 export default function Register() {
   const navigate = useNavigate();
@@ -24,11 +25,13 @@ export default function Register() {
           password: password,
         }),
       }).then((res) => {
+        toast.success("registered successfully")
         navigate("/room");
         console.log(res);
         setIsLoading(false);
       });
     } catch (error) {
+      toast.error("failed to register an account")
       console.error("Error:", error);
       setIsLoading(false);
     }

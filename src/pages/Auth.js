@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import Login from "../components/Auth/Login";
 import Register from "../components/Auth/Register";
 import Stars from "../components/Stars/Stars";
-
 export default function Auth() {
   const [showlogin, setShowLogin] = useState(true);
   return (
