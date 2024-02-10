@@ -89,6 +89,7 @@ const Editor = ({
     }
 
     init();
+    
   }, [lang]); // Make sure isLocked is included in the dependency array
   useEffect(() => {
     if (socketRef.current && socketRef.current.connected) {
