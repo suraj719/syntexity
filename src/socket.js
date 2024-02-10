@@ -10,11 +10,11 @@ const options = {
 };
 
 const socket = io(process.env.REACT_APP_BACKEND_URL, options);
-const sendKeepAlive = () => {
-  socket.emit("keep-alive");
-};
+// const sendKeepAlive = () => {
+//   socket.emit("keep-alive");
+// };
 
-setInterval(sendKeepAlive, 30000);
+// setInterval(sendKeepAlive, 30000);
 // Function to initialize the socket
 export const initSocket = () => {
   return socket;
