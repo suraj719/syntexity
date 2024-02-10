@@ -15,7 +15,7 @@ export default function GetstartedPage() {
           <Typewriter
           options = {{
             strings:"A collaborative code editor",
-            autostart: true,
+            autoStart: true,
             loop:true
           }}
            />
