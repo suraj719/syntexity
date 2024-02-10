@@ -61,12 +61,16 @@ const Editor = ({
           theme: editorTheme,
           autofocus: true,
           dragDrop: true,
-          autoCloseTags: false,
+          autoCloseTags: true,
           autoCloseBrackets: true,
           lineNumbers: true,
           extraKeys: { Tab: "autocomplete" },
           autocomplete: true,
           readOnly: isLocked ? "nocursor" : false,
+          lineWrapping : true,
+          styleActiveLine: true,
+          matchBrackets: true,
+
         }
       );
 

@@ -40,6 +40,7 @@ export default function Login() {
           "Request failed with status code:",
           error.response.status
         );
+        toast.error("falied to login");
         console.error("Error message:", error.response.data);
       } else if (error.request) {
         console.error("No response received:", error.request);
