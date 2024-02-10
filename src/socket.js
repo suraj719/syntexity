@@ -2,11 +2,11 @@
 import { io } from "socket.io-client";
 
 const options = {
-  withCredentials: true,
-  "force new connection": true,
-  reconnectionAttempt: "Infinity",
-  timeout: 1000,
-  transports: ["websocket"],
+  // withCredentials: true,
+  // "force new connection": true,
+  // reconnectionAttempt: "Infinity",
+  // timeout: 1000,
+  // transports: ["websocket"],
 };
 
 const socket = io(process.env.REACT_APP_BACKEND_URL, options);

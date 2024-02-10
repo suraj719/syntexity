@@ -212,7 +212,7 @@ io.on("connection", (socket) => {
       });
     });
     delete userSocketMap[socket.id];
-    socket.leave();
+    //socket.leave();
   });
 });
 
