@@ -343,19 +343,19 @@ const EditorPage = () => {
         </div>
         <div>
           <button
-            onClick={leaveRoom}
-            className="text-red-400 border px-8 py-1 font-halloween"
-          >
-            Leave
-          </button>
-        </div>
-        <div>
-          <button
             onClick={toggleAnalysis}
             className="border text-green-400 px-8 py-1 font-halloween"
           >
             Analysis
-            {showBarChart ? "hide" : "show"}
+            {/*showBarChart ? "hide" : "show"*/}
+          </button>
+        </div>
+        <div>
+          <button
+            onClick={leaveRoom}
+            className="text-red-400 border px-8 py-1 font-halloween"
+          >
+            Leave
           </button>
         </div>
         <div>
