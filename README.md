@@ -4,7 +4,7 @@ Introducing Syntexity: your ultimate destination for seamless collaborative codi
 
 <br/>
 
-**Link to the web app:** [https://syntexity.vercel.com//](https://syntexity.vercel.com//) <br/>
+**Link to the web app:** [https://syntexity.vercel.app](https://syntexity.vercel.app) <br/>
 
 <br/>
 
