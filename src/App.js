@@ -8,6 +8,7 @@ import Auth from "./pages/Auth";
 import GetstartedPage from "./pages/GetstartedPage";
 
 function App() {
+  console.log(process.env.REACT_APP_BACKEND_URL);
   return (
     <>
       <div>

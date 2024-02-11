@@ -1,108 +1,52 @@
 # syntexity
 
-_syntexity web app is a code editor that allows its users to collaborate and write code together. It provides basic editing features and the changes are synced in realtime. The editor supports syntax of 21 programming languages and offers 63 design themes._
+Introducing Syntexity: your ultimate destination for seamless collaborative coding experiences. With Syntexity, coding becomes a breeze as it offers robust code compilation capabilities alongside an advanced editor locking system to prevent conflicts and ensure smooth teamwork. Dive deep into project insights with our sophisticated contribution analysis tools, facilitating effective collaboration and project management. Engage in real-time collaboration with colleagues through our integrated chat facility, fostering communication and teamwork within the platform. Supporting multiple programming languages and offering a variety of editor themes, Syntexity caters to diverse project needs while providing a personalized coding environment. Experience the power of collaboration with Syntexity, where coding becomes efficient and enjoyable.
 
 <br/>
 
-**Link to the web app:** [https://code-sync-qq8w.onrender.com/](https://code-sync-qq8w.onrender.com/) <br/>
+**Link to the web app:** [https://syntexity.vercel.app](https://syntexity.vercel.app) <br/>
 
 <br/>
 
-### Tech Stack ###
-  **Frontend**
-  * React
-  * Recoil
-  * CodeMirror
-  * react-hot-toast
-  * axios
-  * react-router
-  
-  **Backend**
-  * Node.js
-  * Express.js
-  * Socket.io
+### Tech Stack
+
+**Frontend**
+
+- React
+- Recoil
+- CodeMirror
+- React-hot-toast
+- Axios
+- React-router
+- D3
+- TailwindCSS
+
+**Backend**
+
+- Node.js
+- Express.js
+- Socket.io
+- WebRTC
 
 <br/>
 
-### Features ###
-* **Responsive Design**
-* **Realtime Collobarative Code Editor**
-* **Supports syntax of 21 programming languages**
-* **Supports 63 design themes**
-
+### Features
+- **Built-inCode compilation**
+- **Editor locking to prevent conflicts**
+- **contribution analysis**
+- **File upload and download**
+- **Realtime Collobarative Code Editor with in-app chat facility**
+- **Editing with Live Cursors**
+- **Supports syntax of multiple programming languages**
+- **Supports multiple editor themes**
 
 <br/>
 <br/>
 
-- - - -
-
-## Getting Started with Create React App
-
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
-
-## Available Scripts
-
-In the project directory, you can run:
-
-### `npm start`
-
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
-
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
-
-### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## Environment variables
+```
+REACT_APP_BACKEND_URL="http://localhost:5050"
+REACT_APP_clientId="jdoodle client id"
+REACT_APP_clientSecret="jdoodle client secret"
+MONGO_URL="mongodb uri"
+```

@@ -9,6 +9,11 @@ import "codemirror/lib/codemirror.css";
 
 // Import themes and modes as needed
 import "./EditorAddon";
+import "./Cursor.css"
+
+import * as Y from "yjs";
+import { WebrtcProvider } from "y-webrtc";
+import { CodemirrorBinding } from "y-codemirror";
 
 const languageFileExtensions = {
   python: "py",
@@ -34,7 +39,16 @@ const languageFileExtensions = {
   // Add more languages and their corresponding file extensions as needed
 };
 
-const Editor = ({ socketRef, roomId, onCodeChange, isLocked }) => {
+const Editor = ({
+  socketRef,
+  roomId,
+  onCodeChange,
+  isLocked,
+  currentUsername,
+  clients,
+  output,
+}) => {
+  // console.log(currentUsername)
   const editorRef = useRef(null);
   const lang = useRecoilValue(language);
   const editorTheme = useRecoilValue(cmtheme);
@@ -50,14 +64,32 @@ const Editor = ({ socketRef, roomId, onCodeChange, isLocked }) => {
         {
           mode: { name: lang },
           theme: editorTheme,
+          autofocus: true,
+          dragDrop: true,
           autoCloseTags: true,
           autoCloseBrackets: true,
           lineNumbers: true,
-          extraKeys: { "Ctrl-Space": "autocomplete" },
+          extraKeys: { Tab: "autocomplete" },
           autocomplete: true,
           readOnly: isLocked ? "nocursor" : false,
+          lineWrapping : true,
+          styleActiveLine: true,
+          matchBrackets: true,
+
         }
       );
+
+      const ydoc = new Y.Doc();
+      const provider = new WebrtcProvider(
+        roomId,
+        ydoc
+      );
+      const yText = ydoc.getText("codemirror");
+      const yUndoManager = new Y.UndoManager(yText);
+
+      new CodemirrorBinding(yText, editorRef.current, provider.awareness, {
+        yUndoManager,
+      });
 
       editorRef.current.on("change", (instance, changes) => {
         const { origin } = changes;
@@ -74,6 +106,7 @@ const Editor = ({ socketRef, roomId, onCodeChange, isLocked }) => {
     }
 
     init();
+    
   }, [lang]); // Make sure isLocked is included in the dependency array
   useEffect(() => {
     if (socketRef.current && socketRef.current.connected) {
@@ -81,29 +114,33 @@ const Editor = ({ socketRef, roomId, onCodeChange, isLocked }) => {
         roomId,
         editorLocked: isLocked,
       });
-      socketRef.current.on(ACTIONS.TOGGLE_EDITOR_LOCK, ({ roomId, editorLocked }) => {
-        editorRef.current.setOption('readOnly', editorLocked ? 'nocursor' : false);
-      });
+      socketRef.current.on(
+        ACTIONS.TOGGLE_EDITOR_LOCK,
+        ({ roomId, editorLocked }) => {
+          editorRef.current.setOption(
+            "readOnly",
+            editorLocked ? "nocursor" : false
+          );
+        }
+      );
       // Update CodeMirror's readOnly state based on the received lock status
-     
     }
   }, [isLocked, socketRef.current]);
-  
 
-  useEffect(() => {
-    if (socketRef.current) {
-      socketRef.current.on(ACTIONS.CODE_CHANGE, ({ code }) => {
-        if (code !== null) {
-          editorRef.current.setValue(code);
-          setCode(code);
-        }
-      });
-    }
+  // useEffect(() => {
+  //   if (socketRef.current) {
+  //     socketRef.current.on(ACTIONS.CODE_CHANGE, ({ code }) => {
+  //       if (code !== null) {
+  //         editorRef.current.setValue(code);
+  //         setCode(code);
+  //       }
+  //     });
+  //   }
 
-    return () => {
-      socketRef.current.off(ACTIONS.CODE_CHANGE);
-    };
-  }, [socketRef.current]);
+  //   return () => {
+  //     socketRef.current.off(ACTIONS.CODE_CHANGE);
+  //   };
+  // }, [socketRef.current]);
 
   const handleFileUpload = (event) => {
     const file = event.target.files[0];
@@ -139,11 +176,69 @@ const Editor = ({ socketRef, roomId, onCodeChange, isLocked }) => {
   };
 
   return (
-    <div>
-      <input type="file" onChange={handleFileUpload} />
-      <button onClick={handleSaveCode}>Save Code</button>
-      <textarea id="realtimeEditor"></textarea>
-      <ChatArea socketRef={socketRef} roomId={roomId} />
+    <div className="flex h-[90vh]">
+      <div
+        className="text-white flex gap-4"
+        style={{
+          position: "absolute",
+          top: "20px",
+          right: "15px",
+        }}
+      >
+        <input
+          type="file"
+          id="upload"
+          onChange={handleFileUpload}
+          className="hidden"
+        />
+        <label for="upload" className="font-bold">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={3.6}
+            stroke="currentColor"
+            className="w-6 h-6"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"
+            />
+          </svg>
+        </label>
+        <div onClick={handleSaveCode} className="font-bold">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={3.6}
+            stroke="currentColor"
+            className="w-6 h-6"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3"
+            />
+          </svg>
+        </div>
+      </div>
+      <div>
+        <div className="border-2 rounded-lg p-2 m-2">
+          <textarea id="realtimeEditor"></textarea>
+        </div>
+        <div className="border-2 rounded-lg h-[20vh] p-2 m-2">
+          <p className="text-white font-halloween text-2xl">Output</p>
+          <p className="text-white mt-4">{output}</p>
+        </div>
+      </div>
+      <ChatArea
+        socketRef={socketRef}
+        roomId={roomId}
+        currentUsername={currentUsername}
+        clients={clients}
+      />
     </div>
   );
 };

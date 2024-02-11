@@ -9,23 +9,31 @@
     "axios": "^1.6.7",
     "bcryptjs": "^2.4.3",
     "codemirror": "^5.65.2",
+    "d3": "^7.8.5",
+    "dotenv": "^16.4.2",
     "express": "^4.17.3",
+    "express-session": "^1.18.0",
     "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.3.0",
     "mongoose": "^8.1.1",
+    "nodemailer": "^6.9.9",
+    "passport": "^0.7.0",
+    "passport-local": "^1.0.0",
+    "passport-local-mongoose": "^8.0.0",
     "react": "^18.0.0",
     "react-avatar": "^5.0.3",
     "react-dom": "^18.0.0",
     "react-hot-toast": "^2.2.0",
     "react-router-dom": "^6.3.0",
-    "react-scripts": "5.0.0",
+    "react-scripts": "^5.0.0",
     "recoil": "^0.7.0",
     "socket.io": "^4.4.1",
     "socket.io-client": "^4.4.1",
+    "typewriter-effect": "^2.21.0",
     "uuid": "^8.3.2",
     "web-vitals": "^2.1.4",
     "y-codemirror": "^3.0.1",
-    "y-websocket": "^1.5.3",
+    "y-webrtc": "^10.3.0",
     "yjs": "^13.6.11"
   },
   "scripts": {
@@ -40,7 +48,11 @@
     "extends": [
       "react-app",
       "react-app/jest"
-    ]
+    ],
+    "rules": {
+      "no-unused-vars": "off",
+      "react-hooks/exhaustive-deps": "off"
+    }
   },
   "browserslist": {
     "production": [

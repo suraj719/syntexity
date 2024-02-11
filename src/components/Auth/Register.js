@@ -1,6 +1,9 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router";
+import toast from "react-hot-toast";
 
 export default function Register() {
+  const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [email, setMail] = useState("");
@@ -9,7 +12,7 @@ export default function Register() {
     e.preventDefault();
     try {
       setIsLoading(true);
-      await fetch(`http://localhost:5050/api/signup`, {
+      await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/signup`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -22,10 +25,13 @@ export default function Register() {
           password: password,
         }),
       }).then((res) => {
+        toast.success("registered successfully")
+        navigate("/room");
         console.log(res);
         setIsLoading(false);
       });
     } catch (error) {
+      toast.error("failed to register an account")
       console.error("Error:", error);
       setIsLoading(false);
     }
@@ -50,11 +56,11 @@ export default function Register() {
           required
         />
       </div>
-      <div className="my- font-halloween w-full">
+      <div className="my-  w-full">
         <input
           type="password"
           onChange={(e) => setPassword(e.target.value)}
-          className="rounded-md text-2xl font-bold outline-none p-2 w-full"
+          className="rounded-md password-halloween text-2xl text-black font-bold outline-none p-2 w-full"
           placeholder="Password"
           required
         />
@@ -65,24 +71,13 @@ export default function Register() {
           <>
             <button
               type="submit"
-              className="w-full py-2 text-white cursor-wait text-4xl font-halloween bg-gray-400 rounded-md text-center
-              hover:bg-gray-600
+              className="cursor-wait w-full border text-4xl font-halloween border-white text-xl bg-gray-600 text-white px-10 py-3 mt-8
               "
-              //   onClick={handleLogin}
-              disabled
-            >
-              Login
-            </button>
-            {/* <button
-              type="submit"
-              className="w-full py-2 text-white cursor-wait font-bold text-lg bg-gray-400 rounded-md text-center
-              hover:bg-gray-500
-              "
-              onClick={handleRegister}
+              // onClick={handleRegister}
               disabled
             >
               Register
-            </button> */}
+            </button>
           </>
         ) : (
           <>

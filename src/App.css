@@ -8,8 +8,59 @@
 .font-halloween {
   font-family: "Halloween";
 }
+.password-halloween::placeholder {
+  font-family: "Halloween";
+}
+.CodeMirror {
+  min-height: 65vh;
+  /* width: 70vw; */
+  /* overflow: hidden; */
+  width: calc(100vw - 150px);
+  font-size: 16px;
+  line-height: 1.6;
+  padding-top: 20px;
+}
+body {
+  /* overflow: hidden; */
+}
+.messageBox {
+  font-size: 1.2rem;
+  word-wrap: break-word;
+  text-align: justify;
+  border-radius: 20px;
+  padding: 0px 12px;
+  color: white;
+  display: inline-block;
+  max-width: 50%;
+  min-width: 1vw;
+  display: flex;
+  flex-direction: row;
+}
+.backgroundBlue {
+  word-wrap: break-word;
 
-.homePageWrapper {
+  background: #2979ff;
+  border-top-right-radius: 0px;
+}
+
+.backgroundLight {
+  background: #32a852;
+  border-top-left-radius: 0px;
+}
+@media screen and (min-width: 480px) {
+  .CodeMirror {
+    height: 100vh;
+    width: calc(100vw - 350px);
+    font-size: 16px;
+    line-height: 1.6;
+    padding-top: 20px;
+  }
+}
+/* option:focus{
+  background-color: aqua;
+  color: red !important;
+} */
+/* .homePageWrapper {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -102,10 +153,10 @@ footer a:hover {
 }
 
 .mainWrap {
-  display: grid;
+  /* display: grid;
   grid-template-columns: 180px 1fr;
-  height: 100vh;
-}
+  height: 100vh; */
+/* }
 
 @media screen and (min-width: 480px) {
   .mainWrap {
@@ -187,4 +238,4 @@ footer a:hover {
       line-height: 1.6;
       padding-top: 20px;
   }
-}
+} */

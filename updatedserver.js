@@ -1,3 +1,114 @@
+// // server.js
+// const express = require("express");
+// const http = require("http");
+// const mongoose = require("mongoose");
+// const { Server } = require("socket.io");
+// const cors = require("cors");
+// const ACTIONS = require("./src/Actions");
+// const router = express.Router();
+// const bcrypt = require("bcryptjs");
+// const jwt = require("jsonwebtoken");
+// const app = express();
+
+// const server = http.createServer(app);
+// const io = new Server(server, {
+//   cors: {
+//     origin: "http://localhost:3030", // Replace with the actual origin of your client application
+//     methods: ["GET", "POST"],
+//     allowedHeaders: ["my-custom-header"],
+//     credentials: true,
+//   },
+// });
+
+
+
+// // app.get("/sfs",(req,res)=>{
+// //     res.send("ssfsfs")
+// // })
+// // router.route("/signup").post(createuser);
+// // router.route("/login").post(loginUser);
+
+// const ChatMessage = mongoose.model("ChatMessage", {
+//   username: String,
+//   message: String,
+// });
+
+// const userSocketMap = {};
+
+// function getAllConnectedClients(roomId) {
+//   return Array.from(io.sockets.adapter.rooms.get(roomId) || []).map(
+//     (socketId) => {
+//       return {
+//         socketId,
+//         username: userSocketMap[socketId],
+//       };
+//     }
+//   );
+// }
+
+// io.on("connection", (socket) => {
+//   console.log("socket connected", socket.id);
+
+//   socket.on(ACTIONS.JOIN, ({ roomId, username }) => {
+//     userSocketMap[socket.id] = username;
+//     socket.join(roomId);
+//     const clients = getAllConnectedClients(roomId);
+//     clients.forEach(({ socketId }) => {
+//       io.to(socketId).emit(ACTIONS.JOINED, {
+//         clients,
+//         username,
+//         socketId: socket.id,
+//       });
+//     });
+//   });
+
+//   socket.on(ACTIONS.SEND_MESSAGE, ({ roomId, message }) => {
+//     const senderUsername = userSocketMap[socket.id];
+//     const chatMessage = new ChatMessage({ senderUsername, message });
+//     chatMessage.save();
+//     io.in(roomId).emit(ACTIONS.RECEIVE_MESSAGE, {
+//       username: senderUsername,
+//       message,
+//     });
+//   });
+
+//   socket.on(ACTIONS.CODE_CHANGE, ({ roomId, code }) => {
+//     socket.in(roomId).emit(ACTIONS.CODE_CHANGE, { code });
+//   });
+
+//   socket.on(ACTIONS.SYNC_CODE, ({ socketId, code }) => {
+//     io.to(socketId).emit(ACTIONS.CODE_CHANGE, { code });
+//   });
+
+//   socket.on(ACTIONS.TOGGLE_EDITOR_LOCK, ({ roomId, editorLocked }) => {
+//     // Emit the new TOGGLE_EDITOR_LOCK action to other users in the room
+//     socket.to(roomId).emit(ACTIONS.TOGGLE_EDITOR_LOCK, { editorLocked });
+//   });
+
+//   // Handle UPLOAD_FILE event on the server side
+//   socket.on("UPLOAD_FILE", ({ roomId, fileContent }) => {
+//     // Broadcast the file content to all participants in the room
+//     io.to(roomId).emit("SYNC_CODE", { code: fileContent });
+//   });
+
+//   socket.on("disconnecting", () => {
+//     const rooms = [...socket.rooms];
+//     rooms.forEach((roomId) => {
+//       socket.in(roomId).emit(ACTIONS.DISCONNECTED, {
+//         socketId: socket.id,
+//         username: userSocketMap[socket.id],
+//       });
+//     });
+//     delete userSocketMap[socket.id];
+//     socket.leave();
+//   });
+// });
+
+// const PORT = process.env.PORT || 5050;
+// server.listen(PORT, () => console.log(`Listening on port ${PORT}`));
+
+
+
 const express = require("express");
 const http = require("http");
 const mongoose = require("mongoose");
@@ -9,14 +120,12 @@ const ACTIONS = require("./src/Actions");
 const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
 const session = require("express-session");
-const { default: axios } = require("axios");
-require('dotenv').config(); 
 
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "*", // Replace with the actual origin of your client application
+    origin: "http://localhost:3030", // Replace with the actual origin of your client application
     methods: ["GET", "POST"],
     allowedHeaders: ["my-custom-header"],
     credentials: true,
@@ -65,10 +174,9 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-mongoose
-  .connect(process.env.MONGO_URL)
+mongoose.connect("mongodb+srv://syntexity:syntexity@cluster0.kqn8npq.mongodb.net")
   .then(() => console.log("Connected to MongoDB"))
-  .catch((err) => console.error("Error connecting to MongoDB:", err));
+  .catch(err => console.error("Error connecting to MongoDB:", err));
 
 const UserSchema = new mongoose.Schema({
   username: String,
@@ -103,21 +211,17 @@ const createuser = async (req, res) => {
   }
 };
 
-const loginUser = async (req, res) => {
-  const user = await User.findOne({
-    username: req.body.username.toUpperCase(),
-  });
-  if (!user) return res.status(400).send("Invalid username");
+const loginUser = (req, res, next) => {
+  passport.authenticate("local", (err, user, info) => {
+    if (err) return next(err);
+    if (!user) return res.status(400).send(info.message);
 
-  const validPass = await bcrypt.compare(req.body.password, user.password);
-  if (!validPass) return res.status(400).send("Invalid password");
-
-  const token = jwt.sign({ name: user.username }, "sfsfs");
-  try {
-    res.send({ token: token });
-  } catch (error) {
-    res.send("Incorrect login details");
-  }
+    req.logIn(user, (err) => {
+      if (err) return next(err);
+      const token = jwt.sign({ name: user.username }, "sfsfs");
+      return res.send({ token: token });
+    });
+  })(req, res, next);
 };
 
 const ChatMessage = mongoose.model("ChatMessage", {
@@ -126,7 +230,6 @@ const ChatMessage = mongoose.model("ChatMessage", {
 });
 
 const userSocketMap = {};
-
 
 function getAllConnectedClients(roomId) {
   return Array.from(io.sockets.adapter.rooms.get(roomId) || []).map(
@@ -138,15 +241,9 @@ function getAllConnectedClients(roomId) {
     }
   );
 }
-let userChanges = {};
-
 
 io.on("connection", (socket) => {
   console.log("socket connected", socket.id);
-  // socket.on("keep-alive", () => {
-  //   console.log("Received keep-alive message from client:", socket.id);
-  // });
-  userChanges={};
 
   socket.on(ACTIONS.JOIN, ({ roomId, username }) => {
     userSocketMap[socket.id] = username;
@@ -170,17 +267,6 @@ io.on("connection", (socket) => {
       message,
     });
   });
-
-  socket.on(ACTIONS.CODE_CHANGE, ({ roomId }) => {
-    console.log("changing..")
-    const senderUsername2 = userSocketMap[socket.id];
-    if (!userChanges[senderUsername2]) {
-      userChanges[senderUsername2] = 0;
-    }
-    userChanges[senderUsername2]++;
-    // console.log(userChanges);
-    io.in(roomId).emit(ACTIONS.USER_CHANGES, userChanges);
-  });
 
   socket.on(ACTIONS.CODE_CHANGE, ({ roomId, code }) => {
     socket.in(roomId).emit(ACTIONS.CODE_CHANGE, { code });
@@ -210,7 +296,7 @@ io.on("connection", (socket) => {
       });
     });
     delete userSocketMap[socket.id];
-    //socket.leave();
+    socket.leave();
   });
 });
 
@@ -220,18 +306,4 @@ server.listen(PORT, () => console.log(`Listening on port ${PORT}`));
 const router = express.Router();
 router.route("/signup").post(createuser);
 router.route("/login").post(loginUser);
-// router.route("/compile").post(CompileCode);
-
-app.post("/execute", async (req, res) => {
-  try {
-    const response = await axios.post(
-      "https://api.jdoodle.com/v1/execute",
-      req.body
-    );
-    res.json(response.data);
-  } catch (error) {
-    res.status(error.response.status).json(error.response.data);
-  }
-});
-
 app.use("/api", router);
