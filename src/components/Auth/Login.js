@@ -27,7 +27,7 @@ export default function Login() {
       );
 
       if (response.data) {
-        toast.success("loggin successful")
+        toast.success("login successful")
         console.log("success");
         navigate("/room");
       } else {

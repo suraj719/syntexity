@@ -41,3 +41,11 @@ Introducing Syntexity: your ultimate destination for seamless collaborative codi
 
 <br/>
 <br/>
+
+## Environment variables
+```
+REACT_APP_BACKEND_URL="http://localhost:5050"
+REACT_APP_clientId="JDOODLE clientID"
+REACT_APP_clientSecret="jdoodle client secret"
+MONGO_URL="mongodb uri
+```

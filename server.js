@@ -10,7 +10,7 @@ const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
 const session = require("express-session");
 const { default: axios } = require("axios");
-const nodemailer = require("nodemailer");
+require('dotenv').config(); 
 
 const app = express();
 const server = http.createServer(app);
@@ -66,9 +66,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 mongoose
-  .connect(
-    "mongodb+srv://syntexity:syntexity@cluster0.kqn8npq.mongodb.net/?retryWrites=true&w=majority"
-  )
+  .connect(process.env.MONGO_URL)
   .then(() => console.log("Connected to MongoDB"))
   .catch((err) => console.error("Error connecting to MongoDB:", err));
 
@@ -237,36 +235,3 @@ app.post("/execute", async (req, res) => {
 });
 
 app.use("/api", router);
-
-const refreshToken =
-  "1//0486lIXrIORO7CgYIARAAGAQSNwF-L9IrYlS6AqLB0ymaEzX1cmsSh--2yQGS6q6nFeVWXbiu6Wd7Fs74Zsaa0NR3bRvDldZDHAI";
-
-const clientId =
-  "338103656583-tbds3005m3r956c71vmbjpap58gu79q7.apps.googleusercontent.com";
-const clientSecret = "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";
-
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    type: "OAuth2",
-    user: "gitty693@gmail.com",
-    pass: "suraj@2012",
-    clientId: clientId,
-    clientSecret: clientSecret,
-    refreshToken: refreshToken,
-  },
-});
-
-app.post("/mail", async (req, res) => {
-  try {
-    await transporter.sendMail({
-      from: "gitty693@gmail.com",
-      to: req.body.toMail,
-      subject: "Your customized SOP report",
-      text: `${req.body.usernameJoined} have joined`,
-    });
-    return res.status(200).json({ success: true });
-  } catch (error) {
-    return res.status(400).json({ msg: error.msg });
-  }
-});
