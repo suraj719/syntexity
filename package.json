@@ -34,7 +34,6 @@
     "web-vitals": "^2.1.4",
     "y-codemirror": "^3.0.1",
     "y-webrtc": "^10.3.0",
-    "y-websocket": "^1.5.3",
     "yjs": "^13.6.11"
   },
   "scripts": {

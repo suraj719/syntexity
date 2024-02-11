@@ -141,7 +141,7 @@ const Editor = ({
   //     socketRef.current.off(ACTIONS.CODE_CHANGE);
   //   };
   // }, [socketRef.current]);
-  // console.log(code)
+
   const handleFileUpload = (event) => {
     const file = event.target.files[0];
     const reader = new FileReader();
@@ -224,8 +224,6 @@ const Editor = ({
           </svg>
         </div>
       </div>
-      {/* <input type="file" onChange={handleFileUpload} />
-      <button onClick={handleSaveCode}>Save Code</button> */}
       <div>
         <div className="border-2 rounded-lg p-2 m-2">
           <textarea id="realtimeEditor"></textarea>

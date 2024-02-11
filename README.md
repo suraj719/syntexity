@@ -31,11 +31,12 @@ Introducing Syntexity: your ultimate destination for seamless collaborative codi
 <br/>
 
 ### Features
-- **Code compilation**
+- **Built-inCode compilation**
 - **Editor locking to prevent conflicts**
 - **contribution analysis**
 - **File upload and download**
 - **Realtime Collobarative Code Editor with in-app chat facility**
+- **Editing with Live Cursors**
 - **Supports syntax of multiple programming languages**
 - **Supports multiple editor themes**
 
