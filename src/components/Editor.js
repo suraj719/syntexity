@@ -11,9 +11,9 @@ import "codemirror/lib/codemirror.css";
 import "./EditorAddon";
 import "./Cursor.css"
 
-import * as Y from "yjs";
-import { WebrtcProvider } from "y-webrtc";
-import { CodemirrorBinding } from "y-codemirror";
+// import * as Y from "yjs";
+// import { WebrtcProvider } from "y-webrtc";
+// import { CodemirrorBinding } from "y-codemirror";
 
 const languageFileExtensions = {
   python: "py",
@@ -79,17 +79,17 @@ const Editor = ({
         }
       );
 
-      const ydoc = new Y.Doc();
-      const provider = new WebrtcProvider(
-        roomId,
-        ydoc
-      );
-      const yText = ydoc.getText("codemirror");
-      const yUndoManager = new Y.UndoManager(yText);
+      // const ydoc = new Y.Doc();
+      // const provider = new WebrtcProvider(
+      //   roomId,
+      //   ydoc
+      // );
+      // const yText = ydoc.getText("codemirror");
+      // const yUndoManager = new Y.UndoManager(yText);
 
-      new CodemirrorBinding(yText, editorRef.current, provider.awareness, {
-        yUndoManager,
-      });
+      // new CodemirrorBinding(yText, editorRef.current, provider.awareness, {
+      //   yUndoManager,
+      // });
 
       editorRef.current.on("change", (instance, changes) => {
         const { origin } = changes;
@@ -127,20 +127,20 @@ const Editor = ({
     }
   }, [isLocked, socketRef.current]);
 
-  // useEffect(() => {
-  //   if (socketRef.current) {
-  //     socketRef.current.on(ACTIONS.CODE_CHANGE, ({ code }) => {
-  //       if (code !== null) {
-  //         editorRef.current.setValue(code);
-  //         setCode(code);
-  //       }
-  //     });
-  //   }
+  useEffect(() => {
+    if (socketRef.current) {
+      socketRef.current.on(ACTIONS.CODE_CHANGE, ({ code }) => {
+        if (code !== null) {
+          editorRef.current.setValue(code);
+          setCode(code);
+        }
+      });
+    }
 
-  //   return () => {
-  //     socketRef.current.off(ACTIONS.CODE_CHANGE);
-  //   };
-  // }, [socketRef.current]);
+    return () => {
+      socketRef.current.off(ACTIONS.CODE_CHANGE);
+    };
+  }, [socketRef.current]);
 
   const handleFileUpload = (event) => {
     const file = event.target.files[0];
