@@ -172,7 +172,6 @@ io.on("connection", (socket) => {
   });
 
   socket.on(ACTIONS.CODE_CHANGE, ({ roomId }) => {
-    console.log("changing..")
     const senderUsername2 = userSocketMap[socket.id];
     if (!userChanges[senderUsername2]) {
       userChanges[senderUsername2] = 0;
