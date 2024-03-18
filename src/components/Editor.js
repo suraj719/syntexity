@@ -79,30 +79,30 @@ const Editor = ({
         }
       );
 
-      const ydoc = new Y.Doc();
-      const provider = new WebrtcProvider(
-        roomId,
-        ydoc
-      );
-      const yText = ydoc.getText("codemirror");
-      const yUndoManager = new Y.UndoManager(yText);
+      // const ydoc = new Y.Doc();
+      // const provider = new WebrtcProvider(
+      //   roomId,
+      //   ydoc
+      // );
+      // const yText = ydoc.getText("codemirror");
+      // const yUndoManager = new Y.UndoManager(yText);
 
-      new CodemirrorBinding(yText, editorRef.current, provider.awareness, {
-        yUndoManager,
-      });
+      // new CodemirrorBinding(yText, editorRef.current, provider.awareness, {
+      //   yUndoManager,
+      // });
 
-      // editorRef.current.on("change", (instance, changes) => {
-      //   const { origin } = changes;
-      //   const newCode = instance.getValue();
-      //   setCode(newCode);
-      //   onCodeChange(newCode);
-      //   if (origin !== "setValue") {
-      //     socketRef.current.emit(ACTIONS.CODE_CHANGE, {
-      //       roomId,
-      //       code: newCode,
-      //     });
-      //   }
-      // }); 
+      editorRef.current.on("change", (instance, changes) => {
+        const { origin } = changes;
+        const newCode = instance.getValue();
+        setCode(newCode);
+        onCodeChange(newCode);
+        if (origin !== "setValue") {
+          socketRef.current.emit(ACTIONS.CODE_CHANGE, {
+            roomId,
+            code: newCode,
+          });
+        }
+      }); 
     }
 
     init();
