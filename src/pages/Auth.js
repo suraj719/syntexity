@@ -3,11 +3,14 @@ import { Link } from "react-router-dom";
 import Login from "../components/Auth/Login";
 import Register from "../components/Auth/Register";
 import Stars from "../components/Stars/Stars";
+import ParticlesComponent from "../components/ParticlesComponent";
+import '../components/ParticlesComponent.css'
 export default function Auth() {
   const [showlogin, setShowLogin] = useState(true);
   return (
-    <div className="bg-black h-[100vh] w-[100vw]">
-      <Stars />
+    <div className=" h-[100vh] w-[100vw]">
+      {/* <Stars /> */}
+      <ParticlesComponent id='particles' />
 
       <div className="flex flex-col items-center h-[90vh] justify-center">
         <div className="mb-4">
