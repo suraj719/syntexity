@@ -27,6 +27,7 @@ Introducing Syntexity: your ultimate destination for seamless collaborative codi
 - Express.js
 - Socket.io
 - WebRTC
+- MongoDB
 
 <br/>
 
