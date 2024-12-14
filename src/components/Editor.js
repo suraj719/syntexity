@@ -402,25 +402,67 @@ const Editor = ({
         }
       });
 
+      // Use a global key event listener instead of CodeMirror-specific
+  //   const handleKeyDown = (e) => {
+  //     // Check if the editor is focused
+  //     if (e.altKey && e.key === "s" && 
+  //         (document.activeElement === editorRef.current.getTextArea() || 
+  //          editorRef.current.getWrapperElement().contains(document.activeElement))) {
+  //       e.preventDefault();
+  //       fetchCodeSuggestion(e);  // Pass event to prevent default
+  //     }
+  //   };
+
+  //   document.addEventListener("keydown", handleKeyDown);
+
+  //   // Cleanup listener on unmount
+  //   return () => {
+  //     document.removeEventListener("keydown", handleKeyDown);
+  //   };
+  // }
+
       // Add shortcut listener
       // document.addEventListener("keydown", handleKeyDown);
-      editorRef.current.getWrapperElement().addEventListener("keydown", (e) => {
-        if (e.altKey && e.key === "s") {
-          e.preventDefault();
-          fetchCodeSuggestion();
-        }
-      });
+      // editorRef.current.getWrapperElement().addEventListener("keydown", (e) => {
+      //   if (e.altKey && e.key === "s") {
+      //     e.preventDefault();
+      //     fetchCodeSuggestion();
+      //   }
+      // });
       // document.addEventListener("keydown", (e) => {
       //   if (e.altKey && e.key === "s") {
       //     e.preventDefault();
       //     fetchCodeSuggestion();
       //   }
       // });
-      
-    }
-
+}
     init();
   }, [lang]);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // More specific event checking
+      if (e.altKey && e.key === "s") {
+        // Ensure the editor or its wrapper is actually focused
+        const activeElement = document.activeElement;
+        const editorWrapper = editorRef.current?.getWrapperElement();
+        const editorTextArea = editorRef.current?.getTextArea();
+  
+        if (activeElement === editorTextArea || 
+            editorWrapper?.contains(activeElement)) {
+          e.preventDefault();
+          fetchCodeSuggestion(e);
+        }
+      }
+    };
+  
+    document.addEventListener("keydown", handleKeyDown);
+  
+    // Cleanup listener on unmount
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [lang, code, fetchCodeSuggestion]);
 
   useEffect(() => {
     if (socketRef.current && socketRef.current.connected) {
@@ -533,16 +575,6 @@ const Editor = ({
             />
           </svg>
         </div>
-        <button 
-          onClick={fetchCodeSuggestion} 
-          disabled={isLoading}
-          className={`text-white p-2 rounded ${
-            isLoading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-600'
-          }`}
-          title="Get AI Code Suggestion (Alt+S)"
-        >
-          {isLoading ? 'Generating...' : 'Suggest Code'}
-        </button>
       </div>
       <div>
         <div className="border-2 rounded-lg p-2 m-2">
