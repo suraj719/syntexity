@@ -222,74 +222,7 @@ server.listen(PORT, () => console.log(`Listening on port ${PORT}`));
 const router = express.Router();
 router.route("/signup").post(createuser);
 router.route("/login").post(loginUser);
-// router.route("/compile").post(CompileCode);
 
-
-// const { Configuration, OpenAIApi } = require("openai");
-
-
-// const configuration = new Configuration({
-//   apiKey: process.env.OPENAI_API_KEY,
-// });
-
-// const openai = new OpenAIApi(configuration);
-
-// const openai = new OpenAI();
-
-// app.post("/api/suggest-code", async (req, res) => {
-//   const { codeSnippet, language, context } = req.body;
-
-//   // Validate required fields
-//   if (!codeSnippet || !language) {
-//     return res.status(400).json({ error: "Code snippet and language are required." });
-//   }
-
-//   try {
-//     // Build the prompt
-//     const prompt = `
-//       You are a helpful AI for code suggestions.
-//       - Language: ${language}
-//       - Context: ${context || "General"}
-
-//       Given code snippet:
-//       ${codeSnippet}
-
-//       Suggest improvements or provide the next few lines of code.
-//     `;
-
-//     // Make the OpenAI API call
-//     const response = await openai.chat.completions.create({
-//       model: "gpt-4o-mini",
-//       messages: [{ role: "user", content: prompt }],
-//       max_tokens: 150,
-//       temperature: 0.7,
-//     });
-
-//     // Extract suggestion
-//     console.log(response);
-    
-//     const suggestion = response?.data?.choices?.[0]?.message?.content?.trim();
-
-//     if (!suggestion) {
-//       return res.status(500).json({ error: "Failed to generate a suggestion." });
-//     }
-
-//     // Send the suggestion back to the client
-//     res.status(200).json({ suggestion });
-//   } catch (error) {
-//     // Log error for debugging
-//     console.error("Error generating suggestion:", error);
-
-//     // Return error response
-//     if (error.response) {
-//       res.status(error.response.status).json({
-//         error: error.response.data.error || "OpenAI API error",
-//       });
-//     } else {
-//       res.status(500).json({ error: "Internal server error." });
-//     }
-//   }
-// });
 
 // Initialize Hugging Face Inference
 const hf = new HfInference(process.env.HUGGINGFACE_API_KEY);
