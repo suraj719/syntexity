@@ -1,3 +1,5 @@
+const OpenAI=require("openai");  
+const { HfInference } = require('@huggingface/inference');
 const express = require("express");
 const http = require("http");
 const mongoose = require("mongoose");
@@ -172,7 +174,6 @@ io.on("connection", (socket) => {
   });
 
   socket.on(ACTIONS.CODE_CHANGE, ({ roomId }) => {
-    console.log("changing..")
     const senderUsername2 = userSocketMap[socket.id];
     if (!userChanges[senderUsername2]) {
       userChanges[senderUsername2] = 0;
@@ -214,13 +215,71 @@ io.on("connection", (socket) => {
   });
 });
 
+
 const PORT = process.env.PORT || 5050;
 server.listen(PORT, () => console.log(`Listening on port ${PORT}`));
 
 const router = express.Router();
 router.route("/signup").post(createuser);
 router.route("/login").post(loginUser);
-// router.route("/compile").post(CompileCode);
+
+
+// Initialize Hugging Face Inference
+const hf = new HfInference(process.env.HUGGINGFACE_API_KEY);
+
+app.post("/api/suggest-code", async (req, res) => {
+  const { codeSnippet, language } = req.body;
+
+  // Validate required fields
+  if (!codeSnippet || !language) {
+    return res.status(400).json({ error: "Code snippet and language are required." });
+  }
+
+  try {
+    // Prepare the prompt for code suggestion
+    // const prompt = `
+    //   You are a helpful AI assistant for code suggestions.
+    //   Language: ${language}
+    //   Given the following code snippet:
+    //   \`\`\`${language}
+    //   ${codeSnippet}
+    //   \`\`\`
+
+    //   Please suggest improvements or provide the next few lines of code that logically continue or complete the snippet.
+    // `;
+    const prompt=`${codeSnippet}`
+
+    // Use Hugging Face's code generation model
+    const response = await hf.textGeneration({
+      model: 'bigcode/starcoder',
+      inputs: prompt,
+      parameters: {
+        max_new_tokens: 100,
+        temperature: 0.7,
+        top_p: 0.9,
+      }
+    });
+
+    // Extract and clean the suggestion
+    const suggestion = response.generated_text.replace(prompt, '').trim();
+
+    if (!suggestion) {
+      return res.status(500).json({ error: "Failed to generate a suggestion." });
+    }
+
+    // Send the suggestion back to the client
+    res.status(200).json({ suggestion });
+  } catch (error) {
+    // Log error for debugging
+    console.error("Error generating suggestion:", error);
+
+    // Return error response
+    res.status(500).json({ 
+      error: error.message || "Internal server error while generating code suggestion" 
+    });
+  }
+});
+
 
 app.post("/execute", async (req, res) => {
   try {
@@ -233,5 +292,7 @@ app.post("/execute", async (req, res) => {
     res.status(error.response.status).json(error.response.data);
   }
 });
+
+
 
 app.use("/api", router);

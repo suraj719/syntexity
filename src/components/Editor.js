@@ -9,11 +9,7 @@ import "codemirror/lib/codemirror.css";
 
 // Import themes and modes as needed
 import "./EditorAddon";
-import "./Cursor.css"
-
-import * as Y from "yjs";
-import { WebrtcProvider } from "y-webrtc";
-import { CodemirrorBinding } from "y-codemirror";
+import "./Cursor.css";
 
 const languageFileExtensions = {
   python: "py",
@@ -36,7 +32,6 @@ const languageFileExtensions = {
   xml: "xml",
   swift: "swift",
   yaml: "yaml",
-  // Add more languages and their corresponding file extensions as needed
 };
 
 const Editor = ({
@@ -48,11 +43,52 @@ const Editor = ({
   clients,
   output,
 }) => {
-  // console.log(currentUsername)
   const editorRef = useRef(null);
   const lang = useRecoilValue(language);
   const editorTheme = useRecoilValue(cmtheme);
   const [code, setCode] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  const fetchCodeSuggestion = async () => {
+    console.log("Fetching code suggestions");
+    
+    // Prevent multiple simultaneous suggestion requests
+    if (isLoading) return;
+
+    try {
+      setIsLoading(true);
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/suggest-code`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          codeSnippet: code,
+          language: lang,
+        }),
+      });
+
+      const data = await response.json();
+      
+      if (data.suggestion) {
+        // Append the suggestion to the existing code
+        const newCode = code + '\n' + data.suggestion;
+        
+        editorRef.current.setValue(newCode);
+        setCode(newCode);
+        
+        socketRef.current.emit(ACTIONS.CODE_CHANGE, {
+          roomId,
+          code: newCode,
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching code suggestion:", error);
+      // Optionally show an error toast or message to the user
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
     async function init() {
@@ -72,10 +108,9 @@ const Editor = ({
           extraKeys: { Tab: "autocomplete" },
           autocomplete: true,
           readOnly: isLocked ? "nocursor" : false,
-          lineWrapping : true,
+          lineWrapping: true,
           styleActiveLine: true,
           matchBrackets: true,
-
         }
       );
 
@@ -102,12 +137,37 @@ const Editor = ({
             code: newCode,
           });
         }
-      }); 
+      });
     }
 
     init();
-    
-  }, [lang]); // Make sure isLocked is included in the dependency array
+  }, [lang]);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // More specific event checking
+      if (e.altKey && e.key === "s") {
+        // Ensure the editor or its wrapper is actually focused
+        const activeElement = document.activeElement;
+        const editorWrapper = editorRef.current?.getWrapperElement();
+        const editorTextArea = editorRef.current?.getTextArea();
+  
+        if (activeElement === editorTextArea || 
+            editorWrapper?.contains(activeElement)) {
+          e.preventDefault();
+          fetchCodeSuggestion(e);
+        }
+      }
+    };
+  
+    document.addEventListener("keydown", handleKeyDown);
+  
+    // Cleanup listener on unmount
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [lang, code, fetchCodeSuggestion]);
+
   useEffect(() => {
     if (socketRef.current && socketRef.current.connected) {
       socketRef.current.emit(ACTIONS.TOGGLE_EDITOR_LOCK, {
@@ -123,7 +183,6 @@ const Editor = ({
           );
         }
       );
-      // Update CodeMirror's readOnly state based on the received lock status
     }
   }, [isLocked, socketRef.current]);
 
@@ -148,13 +207,10 @@ const Editor = ({
 
     reader.onload = (e) => {
       const fileContent = e.target.result;
-      const code = editorRef.current.getValue();
-      // Emit CODE_CHANGE to update other users
       socketRef.current.emit(ACTIONS.CODE_CHANGE, {
         roomId,
         code: fileContent,
       });
-      // Update the local editor
       editorRef.current.setValue(fileContent);
       setCode(fileContent);
     };
@@ -191,7 +247,7 @@ const Editor = ({
           onChange={handleFileUpload}
           className="hidden"
         />
-        <label for="upload" className="font-bold">
+        <label htmlFor="upload" className="font-bold">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"

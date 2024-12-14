@@ -1,12 +1,16 @@
-import React from "react";
+// import React from "react";
 import { Link } from "react-router-dom";
+import React from "react";
 import Stars from "../components/Stars/Stars";
-import Typewriter from "typewriter-effect"
+import Typewriter from "typewriter-effect";
+import ParticlesComponent from "../components/ParticlesComponent";
+import '../components/ParticlesComponent.css'
+
 export default function GetstartedPage() {
   return (
     <>
-      <div className="bg-black w-[100vw] h-[100vh]">
-        <Stars />
+      <div className="w-[100vw] h-[100vh]">
+        <ParticlesComponent id='particles'/>
         <div className="flex flex-col items-center h-[90vh] justify-center">
           <p className="text-8xl font-bold font-halloween text-white">
             SYNTEXITY
