@@ -15,6 +15,7 @@ import {
 } from "react-router-dom";
 import * as d3 from "d3";
 import axios from "axios";
+import TabEditor from "../components/TabEditor";
 
 const EditorPage = () => {
   const [lang, setLang] = useRecoilState(language);
@@ -57,38 +58,143 @@ const EditorPage = () => {
     }
   };
 
+  const [tabs, setTabs] = useState([
+    { id: '1', name: 'main.js', content: '' }
+  ]);
+  const [activeTab, setActiveTab] = useState('1');
+  const [tabContents, setTabContents] = useState({
+    '1': ''  // Initialize with empty content for first tab
+  });
+
+   // Handle code changes from editor
+   const handleCodeChange = (newCode) => {
+    // Update the code reference
+    codeRef.current = newCode;
+    setCode(newCode);
+    
+    // Update the content for the current active tab
+    setTabContents(prev => ({
+      ...prev,
+      [activeTab]: newCode
+    }));
+  };
+
+// Update the tab change handler
+const handleTabChange = (tabId) => {
+  try {
+    // Save current tab content before switching
+    const currentContent = codeRef.current;
+    if (currentContent) {
+      setTabContents(prev => ({
+        ...prev,
+        [activeTab]: currentContent
+      }));
+    }
+    
+    // Switch to new tab
+    setActiveTab(tabId);
+    const tabContent = tabContents[tabId] || '';
+    setCode(tabContent);
+    
+    // Notify other users
+    socketRef.current?.emit(ACTIONS.TAB_CHANGE, {
+      roomId,
+      tabId,
+      content: tabContent
+    });
+  } catch (error) {
+    console.error('Error switching tabs:', error);
+    toast.error('Failed to switch tabs');
+  }
+};
+  const handleTabClose = (tabId) => {
+    if (tabs.length === 1) {
+      toast.error('Cannot close the last tab');
+      return;
+    }
+
+    const newTabs = tabs.filter(tab => tab.id !== tabId);
+    setTabs(newTabs);
+
+    if (activeTab === tabId) {
+      const newActiveTab = newTabs[0].id;
+      setActiveTab(newActiveTab);
+      socketRef.current.emit(ACTIONS.TAB_CHANGE, {
+        roomId,
+        tabId: newActiveTab,
+        content: tabContents[newActiveTab]
+      });
+    }
+    const { [tabId]: removed, ...remainingContents } = tabContents;
+    setTabContents(remainingContents);
+
+    // Emit tab close to all users
+    socketRef.current.emit(ACTIONS.TAB_CLOSE, {
+      roomId,
+      tabId
+    });
+  };
+  const handleNewTab = () => {
+    const newTabId = Date.now().toString();
+    const newTab = {
+      id: newTabId,
+      name: `untitled-${tabs.length + 1}.js`,
+      content: ''
+    };
+
+    setTabs([...tabs, newTab]);
+    setTabContents({
+      ...tabContents,
+      [newTabId]: ''
+    });
+    setActiveTab(newTabId);
+
+    // Emit new tab to all users
+    socketRef.current.emit(ACTIONS.NEW_TAB, {
+      roomId,
+      tab: newTab
+    });
+  };
+
   useEffect(() => {
     const init = async () => {
-      socketRef.current = await initSocket();
-      socketRef.current.on("connect_error", (err) => handleErrors(err));
-      socketRef.current.on("connect_failed", (err) => handleErrors(err));
-
-      function handleErrors(e) {
-        console.log("socket error", e);
-        toast.error("Socket connection failed, try again later.");
-        reactNavigator("/");
-      }
+      try {
+        socketRef.current = await initSocket();
+        
+        if (!socketRef.current) {
+          throw new Error('Socket connection failed');
+        }
+  
+        // Error handlers
+        socketRef.current.on('connect_error', (err) => handleErrors(err));
+        socketRef.current.on('connect_failed', (err) => handleErrors(err));
+  
+        function handleErrors(e) {
+          console.log('socket error', e);
+          toast.error('Socket connection failed, try again later.');
+          reactNavigator('/');
+        }
       socketRef.current.emit(ACTIONS.JOIN, {
         roomId,
         username: location.state?.username,
       });
 
       // Listening for joined event
-      socketRef.current.on(
-        ACTIONS.JOINED,
-        ({ clients, username, socketId }) => {
-          if (username !== location.state?.username) {
-            toast.success(`${username} joined the room.`);
-            console.log(`${username} joined`);
-          }
-          setClients(clients);
-          setOnlineUsersCount(clients.length);
-          socketRef.current.emit(ACTIONS.SYNC_CODE, {
-            code: codeRef.current,
-            socketId,
-          });
-        }
-      );
+      // socketRef.current.on(
+      //   ACTIONS.JOINED,
+      //   ({ clients, username, socketId }) => {
+      //     if (username !== location.state?.username) {
+      //       toast.success(`${username} joined the room.`);
+      //       console.log(`${username} joined`);
+      //     }
+      //     setClients(clients);
+      //     setOnlineUsersCount(clients.length);
+      //     socketRef.current.emit(ACTIONS.SYNC_CODE, {
+      //       code: codeRef.current,
+      //       socketId,
+      //     });
+      //   }
+      // );
 
       // Listening for user changes
       socketRef.current.on(ACTIONS.USER_CHANGES, (changesData) => {
@@ -104,12 +210,111 @@ const EditorPage = () => {
         });
         setOnlineUsersCount((prevCount) => prevCount - 1);
       });
-    };
+    // Tab-related event listeners
+      // Add handler for tab changes
+      socketRef.current.on(ACTIONS.TAB_CHANGE, ({ tabId, content }) => {
+        setActiveTab(tabId);
+        setTabContents(prev => ({
+          ...prev,
+          [tabId]: content
+        }));
+        console.log(content);
+        
+        // Update the code reference and state
+        codeRef.current = content;
+        setCode(content);
+      });
+
+      // Add handler for code changes
+      socketRef.current.on(ACTIONS.CODE_CHANGE, ({ code: newCode, tabId }) => {
+        if (tabId === activeTab) {
+          codeRef.current = newCode;
+          setCode(newCode);
+        }
+        
+        // Always update the tab contents
+        setTabContents(prev => ({
+          ...prev,
+          [tabId]: newCode
+        }));
+      });
+
+      // Add handler for new tab sync
+      socketRef.current.on(ACTIONS.SYNC_TABS, ({ tabs: newTabs, tabContents: newContents, activeTab: newActiveTab }) => {
+        setTabs(newTabs);
+        setTabContents(newContents);
+        setActiveTab(newActiveTab);
+        
+        // Update the editor content
+        const activeContent = newContents[newActiveTab] || '';
+        codeRef.current = activeContent;
+        setCode(activeContent);
+      });
+
+      socketRef.current.on(ACTIONS.NEW_TAB, ({ tab }) => {
+        if (tab) {
+          setTabs(prev => [...prev, tab]);
+          setTabContents(prev => ({
+            ...prev,
+            [tab.id]: tab.content || ''
+          }));
+        }
+      });
+
+      socketRef.current.on(ACTIONS.TAB_CLOSE, ({ tabId }) => {
+        if (tabId) {
+          setTabs(prev => prev.filter(tab => tab.id !== tabId));
+          setTabContents(prev => {
+            const { [tabId]: removed, ...remaining } = prev;
+            return remaining;
+          });
+        }
+      });
+       // Update the JOINED handler
+       socketRef.current.on(ACTIONS.JOINED, ({ clients, username, socketId }) => {
+        if (username !== location.state?.username) {
+          toast.success(`${username} joined the room.`);
+        }
+        setClients(clients);
+        setOnlineUsersCount(clients.length);
+        
+        // Send current state to new user
+        socketRef.current.emit(ACTIONS.SYNC_TABS, {
+          socketId,
+          tabs,
+          tabContents,
+          activeTab
+        });
+      });
+
+      // Add handler for tab sync
+      socketRef.current.on(ACTIONS.SYNC_TABS, (data) => {
+        setTabs(data.tabs);
+        setTabContents(data.tabContents);
+        setActiveTab(data.activeTab);
+        setCode(data.tabContents[data.activeTab] || '');
+      });
+    } catch (err) {
+      console.error('Socket initialization error:', err);
+      toast.error('Failed to connect to the server');
+      reactNavigator('/');
+    }
+  };
+  
     init();
+  
+    // Cleanup function
     return () => {
-      socketRef.current.off(ACTIONS.JOINED);
-      socketRef.current.off(ACTIONS.DISCONNECTED);
-      socketRef.current.disconnect();
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+        socketRef.current.off(ACTIONS.JOINED);
+        socketRef.current.off(ACTIONS.DISCONNECTED);
+        socketRef.current.off(ACTIONS.TAB_CHANGE);
+        socketRef.current.off(ACTIONS.NEW_TAB);
+        socketRef.current.off(ACTIONS.TAB_CLOSE);
+        socketRef.current.off(ACTIONS.SYNC_TABS);
+        socketRef.current.off(ACTIONS.CODE_CHANGE);
+      }
     };
   }, []);
   useEffect(() => {
@@ -527,18 +732,24 @@ const EditorPage = () => {
         }}
         id="bar-chart-container"
       ></div>
+       <TabEditor
+        activeTab={activeTab}
+        tabs={tabs}
+        onTabChange={handleTabChange}
+        onTabClose={handleTabClose}
+        onNewTab={handleNewTab}
+      />
       <div className="editorWrap">
         <Editor
           socketRef={socketRef}
           roomId={roomId}
-          onCodeChange={(newcode) => {
-            codeRef.current = newcode;
-            setCode(newcode);
-          }}
+          onCodeChange={handleCodeChange}
           isLocked={isEditorLocked}
           currentUsername={location.state?.username}
           clients={clients}
           output={output}
+          activeTab={activeTab}
+          initialCode={tabContents[activeTab] || ''}
         />
       </div>
     </div>

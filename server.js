@@ -128,6 +128,7 @@ const ChatMessage = mongoose.model("ChatMessage", {
 });
 
 const userSocketMap = {};
+const roomTabs = new Map(); // Store tabs and their content for each room
 
 
 function getAllConnectedClients(roomId) {
@@ -154,6 +155,10 @@ io.on("connection", (socket) => {
     userSocketMap[socket.id] = username;
     socket.join(roomId);
     const clients = getAllConnectedClients(roomId);
+     // Send existing tabs to the new user
+     if (roomTabs.has(roomId)) {
+      socket.emit(ACTIONS.SYNC_TABS, roomTabs.get(roomId));
+    }
     clients.forEach(({ socketId }) => {
       io.to(socketId).emit(ACTIONS.JOINED, {
         clients,
@@ -162,6 +167,7 @@ io.on("connection", (socket) => {
       });
     });
   });
+  
 
   socket.on(ACTIONS.SEND_MESSAGE, ({ roomId, message }) => {
     const senderUsername = userSocketMap[socket.id];
@@ -170,6 +176,26 @@ io.on("connection", (socket) => {
     io.in(roomId).emit(ACTIONS.RECEIVE_MESSAGE, {
       username: senderUsername,
       message,
+    });
+  });
+
+  socket.on(ACTIONS.SYNC_TABS, ({ roomId, tabs, tabContents, activeTab }) => {
+    // Store the current state
+    if (!roomTabs.has(roomId)) {
+      roomTabs.set(roomId, new Map());
+    }
+    const roomTabsMap = roomTabs.get(roomId);
+    
+    // Update with new content
+    Object.entries(tabContents).forEach(([tabId, content]) => {
+      roomTabsMap.set(tabId, content);
+    });
+    
+    // Broadcast to room
+    socket.to(roomId).emit(ACTIONS.SYNC_TABS, {
+      tabs,
+      tabContents,
+      activeTab
     });
   });
 
@@ -186,16 +212,115 @@ io.on("connection", (socket) => {
   socket.on(ACTIONS.CODE_CHANGE, ({ roomId, code }) => {
     socket.in(roomId).emit(ACTIONS.CODE_CHANGE, { code });
   });
+   // Update the code change handler to include tab information
+  //  socket.on(ACTIONS.CODE_CHANGE, ({ roomId, code, tabId }) => {
+  //   console.log("Setting code");
+    
+  //   if (roomTabs.has(roomId)) {
+  //     const tabs = roomTabs.get(roomId);
+  //     tabs.set(tabId, code);
+  //   }
+    
+  //   socket.in(roomId).emit(ACTIONS.CODE_CHANGE, { 
+  //     code,
+  //     tabId,
+  //     username: userSocketMap[socket.id]
+  //   });
+  // });
+   socket.on(ACTIONS.CODE_CHANGE, ({ roomId, code, tabId }) => {
+    if (roomTabs.has(roomId)) {
+      const tabs = roomTabs.get(roomId);
+      tabs.set(tabId, code);
+    }
+    
+    // Broadcast to all users in the room
+    io.in(roomId).emit(ACTIONS.CODE_CHANGE, { 
+      code,
+      tabId,
+      username: userSocketMap[socket.id]
+    });
+  });
 
   socket.on(ACTIONS.SYNC_CODE, ({ socketId, code }) => {
     io.to(socketId).emit(ACTIONS.CODE_CHANGE, { code });
   });
 
+  // socket.on(ACTIONS.TOGGLE_EDITOR_LOCK, ({ roomId, editorLocked }) => {
+  //   // Emit the new TOGGLE_EDITOR_LOCK action to other users in the room
+  //   socket.to(roomId).emit(ACTIONS.TOGGLE_EDITOR_LOCK, { editorLocked });
+  // });
   socket.on(ACTIONS.TOGGLE_EDITOR_LOCK, ({ roomId, editorLocked }) => {
-    // Emit the new TOGGLE_EDITOR_LOCK action to other users in the room
-    socket.to(roomId).emit(ACTIONS.TOGGLE_EDITOR_LOCK, { editorLocked });
+    // Get the username of the person who toggled the lock
+    const username = userSocketMap[socket.id];
+    
+    // Emit the event with username included
+    socket.to(roomId).emit(ACTIONS.TOGGLE_EDITOR_LOCK, { 
+      editorLocked,
+      username 
+    });
   });
 
+  // Update the tab change handler
+  // socket.on(ACTIONS.TAB_CHANGE, ({ roomId, tabId, content }) => {
+  //   console.log("Tab is being changed", tabId);
+  //   console.log(content);
+    
+    
+  //   // Update the tab content in our storage
+  //   if (!roomTabs.has(roomId)) {
+  //     roomTabs.set(roomId, new Map());
+  //   }
+  //   const tabs = roomTabs.get(roomId);
+  //   tabs.set(tabId, content);
+    
+  //   // Broadcast the change to all users in the room except sender
+  //   socket.in(roomId).emit(ACTIONS.TAB_CHANGE, { 
+  //     tabId, 
+  //     content,
+  //     username: userSocketMap[socket.id]
+  //   });
+  // });
+  socket.on(ACTIONS.TAB_CHANGE, ({ roomId, tabId, content }) => {
+    // Update room tabs
+    if (!roomTabs.has(roomId)) {
+      roomTabs.set(roomId, new Map());
+    }
+    const tabs = roomTabs.get(roomId);
+    tabs.set(tabId, content);
+    
+    // Broadcast to all users in room
+    io.in(roomId).emit(ACTIONS.TAB_CHANGE, { 
+      tabId, 
+      content,
+      username: userSocketMap[socket.id]
+    });
+  });
+  
+  socket.on(ACTIONS.NEW_TAB, ({ roomId, tab }) => {
+    if (!roomTabs.has(roomId)) {
+      roomTabs.set(roomId, new Map());
+    }
+    const tabs = roomTabs.get(roomId);
+    tabs.set(tab.id, tab.content || '');
+    
+    socket.in(roomId).emit(ACTIONS.NEW_TAB, { 
+      tab,
+      username: userSocketMap[socket.id]
+    });
+  });
+  
+   // Handle tab closure
+   socket.on(ACTIONS.TAB_CLOSE, ({ roomId, tabId }) => {
+    if (roomTabs.has(roomId)) {
+      const tabs = roomTabs.get(roomId);
+      tabs.delete(tabId);
+      
+      socket.in(roomId).emit(ACTIONS.TAB_CLOSE, { 
+        tabId,
+        username: userSocketMap[socket.id]
+      });
+    }
+  });
   // Handle UPLOAD_FILE event on the server side
   socket.on("UPLOAD_FILE", ({ roomId, fileContent }) => {
     // Broadcast the file content to all participants in the room
@@ -205,6 +330,10 @@ io.on("connection", (socket) => {
   socket.on("disconnecting", () => {
     const rooms = [...socket.rooms];
     rooms.forEach((roomId) => {
+      const clients = getAllConnectedClients(roomId);
+      if (clients.length <= 1) { // If this was the last user
+        roomTabs.delete(roomId); // Clean up the room's tab data
+      }
       socket.in(roomId).emit(ACTIONS.DISCONNECTED, {
         socketId: socket.id,
         username: userSocketMap[socket.id],

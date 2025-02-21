@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { language, cmtheme } from "../../src/atoms";
 import { useRecoilValue } from "recoil";
+import { toast } from 'react-hot-toast';  // or whatever toast library you're using
 import ACTIONS from "../Actions";
 import ChatArea from "./ChatArea";
 // CODE MIRROR
@@ -42,6 +43,8 @@ const Editor = ({
   currentUsername,
   clients,
   output,
+   activeTab,
+  initialCode = ''
 }) => {
   const editorRef = useRef(null);
   const lang = useRecoilValue(language);
@@ -90,58 +93,108 @@ const Editor = ({
     }
   };
 
-  useEffect(() => {
-    async function init() {
-      if (editorRef.current) {
-        editorRef.current.toTextArea();
-      }
-      editorRef.current = Codemirror.fromTextArea(
-        document.getElementById("realtimeEditor"),
-        {
-          mode: { name: lang },
-          theme: editorTheme,
-          autofocus: true,
-          dragDrop: true,
-          autoCloseTags: true,
-          autoCloseBrackets: true,
-          lineNumbers: true,
-          extraKeys: { Tab: "autocomplete" },
-          autocomplete: true,
-          readOnly: isLocked ? "nocursor" : false,
-          lineWrapping: true,
-          styleActiveLine: true,
-          matchBrackets: true,
-        }
-      );
+//   useEffect(() => {
+//     async function init() {
+//       if (editorRef.current) {
+//         editorRef.current.toTextArea();
+//       }
+//       editorRef.current = Codemirror.fromTextArea(
+//         document.getElementById("realtimeEditor"),
+//         {
+//           mode: { name: lang },
+//           theme: editorTheme,
+//           autofocus: true,
+//           dragDrop: true,
+//           autoCloseTags: true,
+//           autoCloseBrackets: true,
+//           lineNumbers: true,
+//           extraKeys: { Tab: "autocomplete" },
+//           autocomplete: true,
+//           readOnly: isLocked ? "nocursor" : false,
+//           lineWrapping: true,
+//           styleActiveLine: true,
+//           matchBrackets: true,
+//         }
+//       );
+//        // Set initial code if provided
+//        if (initialCode) {
+//         editorRef.current.setValue(initialCode);
+//         setCode(initialCode);
+//       }
 
-      // const ydoc = new Y.Doc();
-      // const provider = new WebrtcProvider(
-      //   roomId,
-      //   ydoc
-      // );
-      // const yText = ydoc.getText("codemirror");
-      // const yUndoManager = new Y.UndoManager(yText);
-
-      // new CodemirrorBinding(yText, editorRef.current, provider.awareness, {
-      //   yUndoManager,
-      // });
-
-      editorRef.current.on("change", (instance, changes) => {
-        const { origin } = changes;
-        const newCode = instance.getValue();
-        setCode(newCode);
-        onCodeChange(newCode);
-        if (origin !== "setValue") {
-          socketRef.current.emit(ACTIONS.CODE_CHANGE, {
-            roomId,
-            code: newCode,
-          });
-        }
-      });
+//       editorRef.current.on("change", (instance, changes) => {
+//         const { origin } = changes;
+//         const newCode = instance.getValue();
+//         setCode(newCode);
+//         onCodeChange(newCode);
+//         if (origin !== "setValue") {
+//           socketRef.current.emit(ACTIONS.CODE_CHANGE, {
+//             roomId,
+//             code: newCode,
+//             tabId: activeTab
+//           });
+//         }
+//       });
+// }
+//     init();
+//   }, [lang]);
+// Update the main useEffect for editor initialization
+useEffect(() => {
+  async function init() {
+    if (editorRef.current) {
+      editorRef.current.toTextArea();
     }
 
-    init();
-  }, [lang]);
+    editorRef.current = Codemirror.fromTextArea(
+      document.getElementById("realtimeEditor"),
+      {
+        mode: { name: lang },
+        theme: editorTheme,
+        autofocus: true,
+        dragDrop: true,
+        autoCloseTags: true,
+        autoCloseBrackets: true,
+        lineNumbers: true,
+        extraKeys: { Tab: "autocomplete" },
+        autocomplete: true,
+        readOnly: isLocked ? "nocursor" : false,
+        lineWrapping: true,
+        styleActiveLine: true,
+        matchBrackets: true,
+      }
+    );
+
+    // Set initial code
+    if (initialCode !== undefined) {
+      editorRef.current.setValue(initialCode);
+      setCode(initialCode);
+    }
+
+    // Handle code changes
+    editorRef.current.on("change", (instance, changes) => {
+      const { origin } = changes;
+      const newCode = instance.getValue();
+      setCode(newCode);
+      onCodeChange(newCode);
+      
+      if (origin !== "setValue") {
+        socketRef.current.emit(ACTIONS.CODE_CHANGE, {
+          roomId,
+          code: newCode,
+          tabId: activeTab
+        });
+      }
+    });
+  }
+  
+  init();
+  
+  return () => {
+    if (editorRef.current) {
+      editorRef.current.toTextArea();
+    }
+  };
+}, [activeTab]); // Add dependencies
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -168,53 +221,142 @@ const Editor = ({
     };
   }, [lang, code, fetchCodeSuggestion]);
 
+  // useEffect(() => {
+  //   if (socketRef.current && socketRef.current.connected) {
+  //     socketRef.current.emit(ACTIONS.TOGGLE_EDITOR_LOCK, {
+  //       roomId,
+  //       editorLocked: isLocked,
+  //     });
+  //     socketRef.current.on(
+  //       ACTIONS.TOGGLE_EDITOR_LOCK,
+  //       ({ roomId, editorLocked }) => {
+  //         editorRef.current.setOption(
+  //           "readOnly",
+  //           editorLocked ? "nocursor" : false
+  //         );
+  //       }
+  //     );
+  //   }
+  // }, [isLocked, socketRef.current]);
   useEffect(() => {
     if (socketRef.current && socketRef.current.connected) {
+      // Emit the lock state change
       socketRef.current.emit(ACTIONS.TOGGLE_EDITOR_LOCK, {
         roomId,
         editorLocked: isLocked,
       });
+  
+      // Listen for lock state changes
       socketRef.current.on(
         ACTIONS.TOGGLE_EDITOR_LOCK,
-        ({ roomId, editorLocked }) => {
+        ({ editorLocked, username }) => {
           editorRef.current.setOption(
             "readOnly",
             editorLocked ? "nocursor" : false
           );
+          
+          // Show toast with username
+          if (editorLocked) {
+            toast(`${username} has locked the editor`);
+          } else {
+            toast(`${username} has unlocked the editor`);
+          }
         }
       );
     }
   }, [isLocked, socketRef.current]);
 
   useEffect(() => {
+  if (editorRef.current) {
+    editorRef.current.setOption("mode", { name: lang });
+  }
+}, [lang]);
+
+   // Update code change socket listener
+  //  useEffect(() => {
+  //   if (socketRef.current) {
+  //     socketRef.current.on(ACTIONS.CODE_CHANGE, ({ code, tabId }) => {
+  //       if (code !== null && tabId === activeTab) {
+  //         editorRef.current.setValue(code);
+  //         setCode(code);
+  //       }
+  //     });
+  //   }
+  //   return () => {
+  //     if (socketRef.current) {
+  //       socketRef.current.off(ACTIONS.CODE_CHANGE);
+  //     }
+  //   };
+  // }, [socketRef.current,activeTab]);
+  useEffect(() => {
     if (socketRef.current) {
-      socketRef.current.on(ACTIONS.CODE_CHANGE, ({ code }) => {
-        if (code !== null) {
-          editorRef.current.setValue(code);
-          setCode(code);
+      socketRef.current.on(ACTIONS.CODE_CHANGE, ({ code: newCode, tabId }) => {
+        if (tabId === activeTab && editorRef.current) {
+          const cursor = editorRef.current.getCursor(); // Store cursor position
+          editorRef.current.setValue(newCode);
+          editorRef.current.setCursor(cursor); // Restore cursor position
+          setCode(newCode);
+          onCodeChange(newCode);
         }
       });
     }
-
     return () => {
-      socketRef.current.off(ACTIONS.CODE_CHANGE);
+      if (socketRef.current) {
+        socketRef.current.off(ACTIONS.CODE_CHANGE);
+      }
     };
-  }, [socketRef.current]);
+  }, [socketRef.current, activeTab]);
 
+  // useEffect(() => {
+  //   if (editorRef.current) {
+  //     editorRef.current.setValue(initialCode);
+  //     setCode(initialCode);
+  //   }
+  // }, [activeTab, initialCode]);
+  useEffect(() => {
+    if (editorRef.current && initialCode) {
+      const cursor = editorRef.current.getCursor(); // Store cursor position
+      editorRef.current.setValue(initialCode);
+      editorRef.current.setCursor(cursor); // Restore cursor position
+      setCode(initialCode);
+    }
+  }, [activeTab]);
+
+  // const handleFileUpload = (event) => {
+  //   const file = event.target.files[0];
+  //   const reader = new FileReader();
+
+  //   reader.onload = (e) => {
+  //     const fileContent = e.target.result;
+  //     socketRef.current.emit(ACTIONS.CODE_CHANGE, {
+  //       roomId,
+  //       code: fileContent,
+  //     });
+  //     editorRef.current.setValue(fileContent);
+  //     setCode(fileContent);
+  //   };
+
+  //   reader.readAsText(file);
+  // };
   const handleFileUpload = (event) => {
     const file = event.target.files[0];
     const reader = new FileReader();
-
+  
     reader.onload = (e) => {
       const fileContent = e.target.result;
-      socketRef.current.emit(ACTIONS.CODE_CHANGE, {
-        roomId,
-        code: fileContent,
-      });
-      editorRef.current.setValue(fileContent);
-      setCode(fileContent);
+      if (editorRef.current) {
+        const cursor = editorRef.current.getCursor();
+        editorRef.current.setValue(fileContent);
+        editorRef.current.setCursor(cursor);
+        setCode(fileContent);
+        socketRef.current.emit(ACTIONS.CODE_CHANGE, {
+          roomId,
+          code: fileContent,
+          tabId: activeTab
+        });
+      }
     };
-
+  
     reader.readAsText(file);
   };
 

@@ -9,6 +9,11 @@ const ACTIONS = {
     RECEIVE_MESSAGE: 'receive-message',
     TOGGLE_EDITOR_LOCK: 'TOGGLE_EDITOR_LOCK',
     USER_CHANGES: 'user-changes',
+    TAB_CHANGE: 'tab-change',
+    NEW_TAB: 'new-tab',
+    TAB_CLOSE: 'tab-close',
+     SYNC_TABS: 'sync-tabs',
+  UPLOAD_FILE: 'upload-file'
 };
 
 module.exports = ACTIONS;
