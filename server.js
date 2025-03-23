@@ -281,18 +281,42 @@ app.post("/api/suggest-code", async (req, res) => {
 });
 
 
+// app.post("/execute", async (req, res) => {
+//   try {
+//     const response = await axios.post(
+//       "https://api.jdoodle.com/v1/execute",
+//       req.body
+//     );
+//     res.json(response.data);
+//   } catch (error) {
+//     res.status(error.response.status).json(error.response.data);
+//   }
+// });
 app.post("/execute", async (req, res) => {
+  console.log(req.body);
+  
   try {
+    // Prepare the payload for JDoodle API
+    const payload = {
+      clientId: req.body.clientId,
+      clientSecret: req.body.clientSecret,
+      script: req.body.script,
+      language: req.body.language,
+      versionIndex: "0", // Use default version
+      stdin: req.body.stdin || "" // Include user input if provided
+    };
+    
     const response = await axios.post(
       "https://api.jdoodle.com/v1/execute",
-      req.body
+      payload
     );
     res.json(response.data);
   } catch (error) {
-    res.status(error.response.status).json(error.response.data);
+    console.error("JDoodle API Error:", error.response?.data || error.message);
+    res.status(error.response?.status || 500)
+       .json(error.response?.data || { error: "Execution failed" });
   }
 });
-
 
 
 app.use("/api", router);

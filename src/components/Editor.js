@@ -42,6 +42,8 @@ const Editor = ({
   currentUsername,
   clients,
   output,
+  userInput,
+  setUserInput,
 }) => {
   const editorRef = useRef(null);
   const lang = useRecoilValue(language);
@@ -284,11 +286,47 @@ const Editor = ({
         <div className="border-2 rounded-lg p-2 m-2">
           <textarea id="realtimeEditor"></textarea>
         </div>
-        <div className="border-2 rounded-lg h-[20vh] p-2 m-2">
-          <p className="text-white font-halloween text-2xl">Output</p>
+        <div className="grid grid-cols-2 gap-2 p-2">
+        <div className="border-2 rounded-lg p-2 h-[20vh]">
+          <p className="text-white font-bold text-xl">Input</p>
+          <textarea
+            className="w-full h-full bg-gray-800 text-white p-2 rounded"
+            value={userInput}
+            onChange={(e) => {
+              setUserInput(e.target.value);
+              //setInput(e.target.value);
+            }}
+          />
+        </div>
+        <div className="border-2 rounded-lg p-2 h-[20vh]">
+          <p className="text-white font-bold text-xl">Output</p>
           <p className="text-white mt-4">{output}</p>
         </div>
       </div>
+        {/* <div className="border-2 rounded-lg h-[20vh] p-2 m-2">
+          <p className="text-white font-halloween text-2xl">Output</p>
+          <p className="text-white mt-4">{output}</p>
+        </div> */}
+      </div>
+      {/* <div>
+        <div className="border-2 rounded-lg p-2 m-2">
+          <textarea id="realtimeEditor"></textarea>
+        </div>
+        <div className="border-2 rounded-lg h-[20vh] p-2 m-2">
+  <p className="text-white font-halloween text-2xl">Output</p>
+  <div className="mt-2 mb-2">
+    <textarea 
+      className="w-full bg-gray-800 text-white p-2 rounded"
+      placeholder="Enter input for your code here..."
+      value={userInput}
+      onChange={(e) => setUserInput(e.target.value)}
+      rows={2}
+    />
+  </div>
+  <p className="text-white mt-2">{output}</p>
+</div>
+
+      </div> */}
       <ChatArea
         socketRef={socketRef}
         roomId={roomId}
